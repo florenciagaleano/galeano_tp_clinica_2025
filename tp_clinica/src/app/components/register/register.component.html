@@ -1,0 +1,340 @@
+<div class="register-container">
+  <div class="register-card">
+    <h2 class="register-title">Registro de Usuario</h2>
+    
+    <!-- Selector de tipo de usuario -->
+    <div class="user-type-selector">
+      <button 
+        type="button"
+        class="type-btn"
+        [class.active]="tipoUsuarioSeleccionado === TipoUsuario.PACIENTE"
+        (click)="seleccionarTipoUsuario(TipoUsuario.PACIENTE)">
+        <i class="fas fa-user"></i>
+        Paciente
+      </button>
+      <button 
+        type="button"
+        class="type-btn"
+        [class.active]="tipoUsuarioSeleccionado === TipoUsuario.ESPECIALISTA"
+        (click)="seleccionarTipoUsuario(TipoUsuario.ESPECIALISTA)">
+        <i class="fas fa-user-md"></i>
+        Especialista
+      </button>
+    </div>
+
+    <!-- Mensajes -->
+    <div *ngIf="mensaje" class="alert" [class.alert-success]="mensajeTipo === 'success'" [class.alert-error]="mensajeTipo === 'error'">
+      {{ mensaje }}
+    </div>
+
+    <!-- Formulario para Pacientes -->
+    <form *ngIf="tipoUsuarioSeleccionado === TipoUsuario.PACIENTE" [formGroup]="formularioPaciente" (ngSubmit)="onSubmit()" class="register-form">
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombre">Nombre *</label>
+          <input 
+            type="text" 
+            id="nombre" 
+            formControlName="nombre"
+            class="form-control"
+            [class.error]="mostrarError(formPaciente['nombre'])">
+          <div *ngIf="mostrarError(formPaciente['nombre'])" class="error-message">
+            {{ obtenerMensajeError('nombre', formularioPaciente) }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="apellido">Apellido *</label>
+          <input 
+            type="text" 
+            id="apellido" 
+            formControlName="apellido"
+            class="form-control"
+            [class.error]="mostrarError(formPaciente['apellido'])">
+          <div *ngIf="mostrarError(formPaciente['apellido'])" class="error-message">
+            {{ obtenerMensajeError('apellido', formularioPaciente) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="edad">Edad *</label>
+          <input 
+            type="number" 
+            id="edad" 
+            formControlName="edad"
+            class="form-control"
+            min="1" max="120"
+            [class.error]="mostrarError(formPaciente['edad'])">
+          <div *ngIf="mostrarError(formPaciente['edad'])" class="error-message">
+            {{ obtenerMensajeError('edad', formularioPaciente) }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="dni">DNI *</label>
+          <input 
+            type="text" 
+            id="dni" 
+            formControlName="dni"
+            class="form-control"
+            placeholder="12345678"
+            [class.error]="mostrarError(formPaciente['dni'])">
+          <div *ngIf="mostrarError(formPaciente['dni'])" class="error-message">
+            {{ obtenerMensajeError('dni', formularioPaciente) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="obra_social">Obra Social *</label>
+        <input 
+          type="text" 
+          id="obra_social" 
+          formControlName="obra_social"
+          class="form-control"
+          [class.error]="mostrarError(formPaciente['obra_social'])">
+        <div *ngIf="mostrarError(formPaciente['obra_social'])" class="error-message">
+          {{ obtenerMensajeError('obra_social', formularioPaciente) }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="email"
+          class="form-control"
+          [class.error]="mostrarError(formPaciente['email'])">
+        <div *ngIf="mostrarError(formPaciente['email'])" class="error-message">
+          {{ obtenerMensajeError('email', formularioPaciente) }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">Contraseña *</label>
+          <input 
+            type="password" 
+            id="password" 
+            formControlName="password"
+            class="form-control"
+            [class.error]="mostrarError(formPaciente['password'])">
+          <div *ngIf="mostrarError(formPaciente['password'])" class="error-message">
+            {{ obtenerMensajeError('password', formularioPaciente) }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirmar Contraseña *</label>
+          <input 
+            type="password" 
+            id="confirmPassword" 
+            formControlName="confirmPassword"
+            class="form-control"
+            [class.error]="mostrarError(formPaciente['confirmPassword'])">
+          <div *ngIf="mostrarError(formPaciente['confirmPassword'])" class="error-message">
+            {{ obtenerMensajeError('confirmPassword', formularioPaciente) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="imagen1">Imagen de Perfil 1 *</label>
+          <input 
+            type="file" 
+            id="imagen1" 
+            accept="image/*"
+            class="form-control file-input"
+            (change)="onImagenSeleccionada($event, 'perfil1')"
+            required>
+          <small class="help-text">Formato: JPG, PNG. Máximo 5MB</small>
+        </div>
+
+        <div class="form-group">
+          <label for="imagen2">Imagen de Perfil 2 *</label>
+          <input 
+            type="file" 
+            id="imagen2" 
+            accept="image/*"
+            class="form-control file-input"
+            (change)="onImagenSeleccionada($event, 'perfil2')"
+            required>
+          <small class="help-text">Formato: JPG, PNG. Máximo 5MB</small>
+        </div>
+      </div>
+
+      <button 
+        type="submit" 
+        class="btn-primary"
+        [disabled]="loading || formularioPaciente.invalid">
+        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+        {{ loading ? 'Registrando...' : 'Registrar Paciente' }}
+      </button>
+    </form>
+
+    <!-- Formulario para Especialistas -->
+    <form *ngIf="tipoUsuarioSeleccionado === TipoUsuario.ESPECIALISTA" [formGroup]="formularioEspecialista" (ngSubmit)="onSubmit()" class="register-form">
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombre_esp">Nombre *</label>
+          <input 
+            type="text" 
+            id="nombre_esp" 
+            formControlName="nombre"
+            class="form-control"
+            [class.error]="mostrarError(formEspecialista['nombre'])">
+          <div *ngIf="mostrarError(formEspecialista['nombre'])" class="error-message">
+            {{ obtenerMensajeError('nombre', formularioEspecialista) }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="apellido_esp">Apellido *</label>
+          <input 
+            type="text" 
+            id="apellido_esp" 
+            formControlName="apellido"
+            class="form-control"
+            [class.error]="mostrarError(formEspecialista['apellido'])">
+          <div *ngIf="mostrarError(formEspecialista['apellido'])" class="error-message">
+            {{ obtenerMensajeError('apellido', formularioEspecialista) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="edad_esp">Edad *</label>
+          <input 
+            type="number" 
+            id="edad_esp" 
+            formControlName="edad"
+            class="form-control"
+            min="23" max="80"
+            [class.error]="mostrarError(formEspecialista['edad'])">
+          <div *ngIf="mostrarError(formEspecialista['edad'])" class="error-message">
+            {{ obtenerMensajeError('edad', formularioEspecialista) }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="dni_esp">DNI *</label>
+          <input 
+            type="text" 
+            id="dni_esp" 
+            formControlName="dni"
+            class="form-control"
+            placeholder="12345678"
+            [class.error]="mostrarError(formEspecialista['dni'])">
+          <div *ngIf="mostrarError(formEspecialista['dni'])" class="error-message">
+            {{ obtenerMensajeError('dni', formularioEspecialista) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email_esp">Email *</label>
+        <input 
+          type="email" 
+          id="email_esp" 
+          formControlName="email"
+          class="form-control"
+          [class.error]="mostrarError(formEspecialista['email'])">
+        <div *ngIf="mostrarError(formEspecialista['email'])" class="error-message">
+          {{ obtenerMensajeError('email', formularioEspecialista) }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password_esp">Contraseña *</label>
+          <input 
+            type="password" 
+            id="password_esp" 
+            formControlName="password"
+            class="form-control"
+            [class.error]="mostrarError(formEspecialista['password'])">
+          <div *ngIf="mostrarError(formEspecialista['password'])" class="error-message">
+            {{ obtenerMensajeError('password', formularioEspecialista) }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword_esp">Confirmar Contraseña *</label>
+          <input 
+            type="password" 
+            id="confirmPassword_esp" 
+            formControlName="confirmPassword"
+            class="form-control"
+            [class.error]="mostrarError(formEspecialista['confirmPassword'])">
+          <div *ngIf="mostrarError(formEspecialista['confirmPassword'])" class="error-message">
+            {{ obtenerMensajeError('confirmPassword', formularioEspecialista) }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Especialidades -->
+      <div class="form-group">
+        <label>Especialidades *</label>
+        <div class="especialidades-grid">
+          <div *ngFor="let especialidad of especialidades" class="especialidad-item">
+            <input 
+              type="checkbox" 
+              [id]="'esp_' + especialidad.id"
+              [checked]="isEspecialidadSelected(especialidad.id!)"
+              (change)="onEspecialidadChange(especialidad.id!, $event)">
+            <label [for]="'esp_' + especialidad.id">{{ especialidad.nombre }}</label>
+          </div>
+        </div>
+        <div *ngIf="mostrarError(formEspecialista['especialidades'])" class="error-message">
+          Debe seleccionar al menos una especialidad
+        </div>
+      </div>
+
+      <!-- Nueva especialidad -->
+      <div class="form-group">
+        <label for="nueva_especialidad">Agregar Nueva Especialidad (opcional)</label>
+        <input 
+          type="text" 
+          id="nueva_especialidad" 
+          formControlName="nueva_especialidad"
+          class="form-control"
+          placeholder="Ej: Endocrinología">
+        <small class="help-text">Si su especialidad no está en la lista, puede agregarla aquí</small>
+      </div>
+
+      <!-- Imagen de perfil -->
+      <div class="form-group">
+        <label for="imagen_esp">Imagen de Perfil *</label>
+        <input 
+          type="file" 
+          id="imagen_esp" 
+          accept="image/*"
+          class="form-control file-input"
+          (change)="onImagenSeleccionada($event, 'especialista')"
+          required>
+        <small class="help-text">Formato: JPG, PNG. Máximo 5MB</small>
+      </div>
+
+      <div class="info-note">
+        <i class="fas fa-info-circle"></i>
+        <p>Los especialistas requieren aprobación del administrador antes de poder acceder al sistema.</p>
+      </div>
+
+      <button 
+        type="submit" 
+        class="btn-primary"
+        [disabled]="loading || formularioEspecialista.invalid">
+        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+        {{ loading ? 'Registrando...' : 'Registrar Especialista' }}
+      </button>
+    </form>
+
+  </div>
+</div>

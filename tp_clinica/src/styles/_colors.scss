@@ -1,0 +1,42 @@
+// Paleta de colores para TP Clínica según especificaciones
+
+$first-color: #fbfbfb;   // Color principal de fondo
+$second-color: #b9e1dc;  // Color secundario (verde menta)  
+$third-color: #f38181;   // Color de acento (coral/rosa)
+$fourth-color: #756c83;  // Color de texto/detalles (gris púrpura)
+
+// Variables adicionales útiles
+$primary: $second-color;
+$secondary: $fourth-color;
+$accent: $third-color;
+$background: $first-color;
+
+// Colores de estado
+$success: #28a745;
+$warning: #ffc107;
+$error: $third-color;
+$info: $second-color;
+
+// Grises adicionales
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+
+// Espaciado
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 3rem;
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;

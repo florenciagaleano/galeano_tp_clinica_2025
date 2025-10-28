@@ -1,0 +1,95 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="clinic-logo">
+      <i class="fas fa-clinic-medical"></i>
+      <h1>Clínica OnLine</h1>
+      <p>Sistema de Gestión Médica</p>
+    </div>
+
+    <!-- Mensajes -->
+    <div *ngIf="mensaje" class="alert" [class.alert-success]="mensajeTipo === 'success'" [class.alert-error]="mensajeTipo === 'error'">
+      {{ mensaje }}
+    </div>
+
+    <!-- Formulario de Login -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      
+      <div class="form-group">
+        <label for="email">
+          <i class="fas fa-envelope"></i>
+          Email
+        </label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="email"
+          class="form-control"
+          [class.error]="formControls['email'].invalid && formControls['email'].touched"
+          placeholder="usuario@ejemplo.com">
+      </div>
+
+      <div class="form-group">
+        <label for="password">
+          <i class="fas fa-lock"></i>
+          Contraseña
+        </label>
+        <input 
+          type="password" 
+          id="password" 
+          formControlName="password"
+          class="form-control"
+          [class.error]="formControls['password'].invalid && formControls['password'].touched"
+          placeholder="Ingrese su contraseña">
+      </div>
+
+      <button 
+        type="submit" 
+        class="btn-primary btn-login"
+        [disabled]="loading || loginForm.invalid">
+        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+        <i *ngIf="!loading" class="fas fa-sign-in-alt"></i>
+        {{ loading ? 'Ingresando...' : 'Iniciar Sesión' }}
+      </button>
+    </form>
+
+    <!-- Acceso Rápido -->
+    <div class="quick-access">
+      <h3>
+        <i class="fas fa-rocket"></i>
+        Acceso Rápido
+      </h3>
+      <div class="quick-buttons">
+        <button 
+          *ngFor="let usuario of usuariosRapidos"
+          class="btn-quick"
+          (click)="loginRapido(usuario)"
+          [disabled]="loading">
+          <i [ngClass]="{
+            'fas fa-user': usuario.tipo === 'Paciente',
+            'fas fa-user-md': usuario.tipo === 'Especialista', 
+            'fas fa-user-shield': usuario.tipo === 'Administrador'
+          }"></i>
+          {{ usuario.tipo }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Registro -->
+    <div class="register-section">
+      <p>¿No tienes cuenta?</p>
+      <button type="button" class="btn-outline" (click)="irARegistro()">
+        <i class="fas fa-user-plus"></i>
+        Registrarse
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div *ngIf="loading" class="loading-overlay">
+  <div class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Iniciando sesión...</p>
+  </div>
+</div>
