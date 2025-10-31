@@ -1,6 +1,14 @@
+/* Variables de color según la paleta del proyecto */
+:root {
+  --first-color: #fbfbfb;   /* Fondo principal */
+  --second-color: #b9e1dc;  /* Verde menta */
+  --third-color: #f38181;   /* Coral/rosa */
+  --fourth-color: #756c83;  /* Gris púrpura */
+}
+
 .register-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #fbfbfb 0%, #b9e1dc 100%);
+  background: var(--first-color);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -10,7 +18,8 @@
 .register-card {
   background: white;
   border-radius: 15px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
   padding: 40px;
   width: 100%;
   max-width: 800px;
@@ -21,9 +30,9 @@
 .register-title {
   text-align: center;
   margin-bottom: 30px;
-  color: #333;
+  color: var(--fourth-color);
   font-size: 2.5rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* Selector de tipo de usuario */
@@ -34,17 +43,18 @@
   border-radius: 10px;
   background: #f8f9fa;
   padding: 10px;
+  border: 1px solid #e9ecef;
 }
 
 .type-btn {
   flex: 1;
   padding: 15px 20px;
-  border: none;
+  border: 2px solid transparent;
   border-radius: 8px;
-  background: transparent;
-  color: #666;
+  background: white;
+  color: var(--fourth-color);
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -54,14 +64,18 @@
 }
 
 .type-btn:hover {
-  background: #e9ecef;
-  color: #495057;
+  background: var(--second-color);
+  color: var(--fourth-color);
+  border-color: var(--second-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(185, 225, 220, 0.3);
 }
 
 .type-btn.active {
-  background: #756c83;
-  color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  background: var(--fourth-color);
+  color: rgb(61, 60, 60);
+  border-color: var(--fourth-color);
+  box-shadow: 0 4px 15px rgba(117, 108, 131, 0.4);
 }
 
 .type-btn i {
@@ -70,22 +84,42 @@
 
 /* Alertas */
 .alert {
-  padding: 15px;
+  padding: 15px 20px;
   border-radius: 8px;
   margin-bottom: 20px;
   font-weight: 500;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideDown 0.3s ease-out;
 }
 
 .alert-success {
   background: #d4edda;
   color: #155724;
-  border: 1px solid #c3e6cb;
+  border-color: #c3e6cb;
 }
 
 .alert-error {
   background: #f8d7da;
   color: #721c24;
-  border: 1px solid #f5c6cb;
+  border-color: var(--third-color);
+}
+
+.alert i {
+  font-size: 1.1rem;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Formularios */
@@ -121,22 +155,23 @@
 
 .form-control {
   padding: 12px 16px;
-  border: 2px solid #e1e5e9;
+  border: 2px solid #e9ecef;
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
   background: white;
+  color: #333;
 }
 
 .form-control:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--fourth-color);
+  box-shadow: 0 0 0 3px rgba(117, 108, 131, 0.1);
 }
 
 .form-control.error {
-  border-color: #dc3545;
-  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+  border-color: var(--third-color);
+  box-shadow: 0 0 0 3px rgba(243, 129, 129, 0.1);
 }
 
 .file-input {
@@ -152,7 +187,7 @@
 
 .error-message {
   margin-top: 5px;
-  color: #dc3545;
+  color: var(--third-color);
   font-size: 0.85rem;
   font-weight: 500;
 }
@@ -166,6 +201,7 @@
   padding: 15px;
   background: #f8f9fa;
   border-radius: 8px;
+  border: 1px solid #e9ecef;
 }
 
 .especialidad-item {
@@ -177,7 +213,7 @@
 .especialidad-item input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #667eea;
+  accent-color: var(--fourth-color);
 }
 
 .especialidad-item label {
@@ -192,14 +228,14 @@
   align-items: flex-start;
   gap: 10px;
   padding: 15px;
-  background: #e7f3ff;
-  border: 1px solid #b3d9ff;
+  background: rgba(185, 225, 220, 0.2);
+  border: 1px solid var(--second-color);
   border-radius: 8px;
-  color: #0056b3;
+  color: var(--fourth-color);
 }
 
 .info-note i {
-  color: #0056b3;
+  color: var(--fourth-color);
   margin-top: 2px;
 }
 
@@ -210,9 +246,9 @@
 
 /* Botones */
 .btn-primary {
-  background: #cf6363;
-  color: white;
-  border: none;
+  background: rgb(84, 84, 84) !important;
+  color: white !important;
+  border: 2px solid var(--fourth-color) !important;
   padding: 15px 30px;
   border-radius: 8px;
   font-size: 1.1rem;
@@ -220,21 +256,29 @@
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 20px;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  min-height: 50px;
+  width: 100%;
+  position: relative;
+  z-index: 10;
 }
 
 .btn-primary:hover:not(:disabled) {
+  background: grey !important;
+  border-color: var(--third-color) !important;
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 25px rgba(243, 129, 129, 0.3);
 }
 
 .btn-primary:disabled {
-  opacity: 0.6;
+  opacity: 0.6 !important;
   cursor: not-allowed;
   transform: none;
+  background: #6c757d !important;
+  border-color: #6c757d !important;
 }
 
 .btn-primary i.fa-spinner {
@@ -300,4 +344,61 @@
     font-size: 1rem;
     padding: 12px 20px;
   }
+}
+
+/* Estilos para nueva especialidad */
+.nueva-especialidad-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.nueva-especialidad-container .form-control {
+  flex: 1;
+}
+
+.btn-add-especialidad {
+  background: #b9e1dc;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.btn-add-especialidad:hover:not(:disabled) {
+  background: #756c83;
+  transform: translateY(-2px);
+}
+
+.btn-add-especialidad:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.mensaje-especialidad {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.mensaje-especialidad.success {
+  background: rgba(185, 225, 220, 0.2);
+  color: #2d6a5d;
+  border: 1px solid #b9e1dc;
+}
+
+.mensaje-especialidad.error {
+  background: rgba(243, 129, 129, 0.2);
+  color: #a94442;
+  border: 1px solid #f38181;
 }

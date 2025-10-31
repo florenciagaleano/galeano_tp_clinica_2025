@@ -1,0 +1,416 @@
+<div class="usuarios-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>
+      <i class="fas fa-users"></i>
+      Gestión de Usuarios
+    </h1>
+    <p>Administra todos los usuarios del sistema</p>
+  </div>
+
+  <!-- Mensajes -->
+  <div *ngIf="mensaje" class="mensaje" [class.success]="mensajeTipo === 'success'" [class.error]="mensajeTipo === 'error'">
+    <i class="fas" [class.fa-check-circle]="mensajeTipo === 'success'" [class.fa-exclamation-circle]="mensajeTipo === 'error'"></i>
+    {{ mensaje }}
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i>
+    Cargando...
+  </div>
+
+  <!-- Controles superiores -->
+  <div class="controles-superiores">
+    <!-- Botones para crear nuevos usuarios -->
+    <div class="botones-crear">
+      <button type="button" class="btn btn-primary" (click)="mostrarFormularioNuevoUsuario(TipoUsuario.PACIENTE)">
+        <i class="fas fa-user-plus"></i>
+        Nuevo Paciente
+      </button>
+      <button type="button" class="btn btn-primary" (click)="mostrarFormularioNuevoUsuario(TipoUsuario.ESPECIALISTA)">
+        <i class="fas fa-user-md"></i>
+        Nuevo Especialista
+      </button>
+      <button type="button" class="btn btn-primary" (click)="mostrarFormularioNuevoUsuario(TipoUsuario.ADMIN)">
+        <i class="fas fa-user-shield"></i>
+        Nuevo Administrador
+      </button>
+    </div>
+
+    <!-- Filtros -->
+    <!--<form [formGroup]="formularioFiltro" class="filtros">
+      <div class="filtro-grupo">
+        <label>Buscar:</label>
+        <input 
+          type="text" 
+          formControlName="busqueda" 
+          placeholder="Nombre, apellido, email o DNI..."
+          class="form-control">
+      </div>
+
+      <div class="filtro-grupo">
+        <label>Tipo:</label>
+        <select formControlName="tipoUsuario" class="form-control">
+          <option value="todos">Todos</option>
+          <option [value]="TipoUsuario.PACIENTE">Pacientes</option>
+          <option [value]="TipoUsuario.ESPECIALISTA">Especialistas</option>
+          <option [value]="TipoUsuario.ADMIN">Administradores</option>
+        </select>
+      </div>
+
+      <div class="filtro-grupo">
+        <label>Estado:</label>
+        <select formControlName="estado" class="form-control">
+          <option value="todos">Todos</option>
+          <option value="activos">Activos</option>
+          <option value="inactivos">Inactivos</option>
+          <option value="pendientes">Pendientes Aprobación</option>
+          <option value="aprobados">Aprobados</option>
+        </select>
+      </div>
+    </form>-->
+  </div>
+
+  <!-- Lista de usuarios -->
+  <div class="usuarios-lista" *ngIf="!mostrandoFormulario">
+    <div class="tabla-responsive">
+      <table class="tabla-usuarios">
+        <thead>
+          <tr>
+            <th>Avatar</th>
+            <th>Datos Personales</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Información Adicional</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let usuario of usuariosFiltrados" [class.especialista-pendiente]="usuario.tipo === TipoUsuario.ESPECIALISTA && !usuario.aprobado_por_admin">
+            <!-- Avatar -->
+            <td class="columna-avatar">
+              <div class="avatar-container">
+                <img 
+                  *ngIf="(usuario.tipo === TipoUsuario.PACIENTE && usuario.imagen_perfil_1) || (usuario.tipo !== TipoUsuario.PACIENTE && usuario.imagen_perfil)" 
+                  [src]="usuario.tipo === TipoUsuario.PACIENTE ? usuario.imagen_perfil_1 : usuario.imagen_perfil" 
+                  [alt]="usuario.nombre"
+                  class="avatar">
+                <div *ngIf="(usuario.tipo === TipoUsuario.PACIENTE && !usuario.imagen_perfil_1) || (usuario.tipo !== TipoUsuario.PACIENTE && !usuario.imagen_perfil)" class="avatar-placeholder">
+                  <i class="fas fa-user"></i>
+                </div>
+              </div>
+            </td>
+
+            <!-- Datos Personales -->
+            <td class="columna-datos">
+              <div class="datos-principales">
+                <strong>{{ usuario.nombre }} {{ usuario.apellido }}</strong>
+                <small>DNI: {{ usuario.dni }}</small>
+              </div>
+              <div class="datos-contacto">
+                <span><i class="fas fa-envelope"></i> {{ usuario.email }}</span>
+                <span><i class="fas fa-calendar"></i> {{ usuario.edad }} años</span>
+              </div>
+            </td>
+
+            <!-- Tipo -->
+            <td class="columna-tipo">
+              <span class="badge" [class]="'badge-' + usuario.tipo">
+                <i class="fas" 
+                   [class.fa-user]="usuario.tipo === TipoUsuario.PACIENTE"
+                   [class.fa-user-md]="usuario.tipo === TipoUsuario.ESPECIALISTA"
+                   [class.fa-user-shield]="usuario.tipo === TipoUsuario.ADMIN"></i>
+                {{ usuario.tipo }}
+              </span>
+            </td>
+
+            <!-- Estado -->
+            <!--<td class="columna-estado">
+              <div class="estado-container">
+                <span class="estado" [class.activo]="usuario.activo" [class.inactivo]="!usuario.activo">
+                  <i class="fas" [class.fa-check-circle]="usuario.activo" [class.fa-times-circle]="!usuario.activo"></i>
+                  {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+                
+                <span *ngIf="usuario.tipo === TipoUsuario.ESPECIALISTA" 
+                      class="aprobacion" 
+                      [class.aprobado]="usuario.aprobado_por_admin" 
+                      [class.pendiente]="!usuario.aprobado_por_admin">
+                  <i class="fas" [class.fa-shield-check]="usuario.aprobado_por_admin" [class.fa-clock]="!usuario.aprobado_por_admin"></i>
+                  {{ usuario.aprobado_por_admin ? 'Aprobado' : 'Pendiente' }}
+                </span>
+
+                <span class="verificacion" [class.verificado]="usuario.email_verificado" [class.no-verificado]="!usuario.email_verificado">
+                  <i class="fas" [class.fa-envelope-check]="usuario.email_verificado" [class.fa-envelope]="!usuario.email_verificado"></i>
+                  {{ usuario.email_verificado ? 'Email Verificado' : 'Email Pendiente' }}
+                </span>
+              </div>
+            </td>-->
+
+            <!-- Información Adicional -->
+            <td class="columna-info">
+              <div *ngIf="usuario.tipo === TipoUsuario.PACIENTE && usuario.obra_social" class="info-adicional">
+                <span><i class="fas fa-hospital"></i> {{ usuario.obra_social }}</span>
+              </div>
+              
+              <div *ngIf="usuario.tipo === TipoUsuario.ESPECIALISTA && usuario.especialidades" class="info-adicional">
+                <div class="especialidades">
+                  <span *ngFor="let esp of usuario.especialidades" class="especialidad-tag">
+                    {{ esp.nombre }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="fecha-registro">
+                <small><i class="fas fa-calendar-plus"></i> {{ usuario.created_at | date:'dd/MM/yyyy' }}</small>
+              </div>
+            </td>
+
+            <!-- Acciones -->
+            <td class="columna-acciones">
+              <div class="acciones">
+                <!-- Activar/Desactivar -->
+                <!--<button 
+                  type="button" 
+                  class="btn btn-sm"
+                  [class.btn-danger]="usuario.activo"
+                  [class.btn-success]="!usuario.activo"
+                  (click)="toggleActivarUsuario(usuario)"
+                  [title]="usuario.activo ? 'Desactivar usuario' : 'Activar usuario'">
+                  <i class="fas" [class.fa-user-slash]="usuario.activo" [class.fa-user-check]="!usuario.activo"></i>
+                </button>-->
+
+                <!-- Aprobar Especialista -->
+                <ng-container *ngIf="usuario.tipo === TipoUsuario.ESPECIALISTA">
+                  <button 
+                    *ngIf="!usuario.aprobado_por_admin"
+                    type="button" 
+                    class="btn btn-sm btn-success"
+                    (click)="aprobarEspecialista(usuario)"
+                    title="Aprobar especialista">
+                    <i class="fas fa-check"></i>
+                  </button>
+                </ng-container>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Mensaje cuando no hay usuarios -->
+      <div *ngIf="usuariosFiltrados.length === 0 && !loading" class="sin-usuarios">
+        <i class="fas fa-users-slash"></i>
+        <p>No se encontraron usuarios que coincidan con los filtros aplicados</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario de nuevo usuario -->
+  <div class="formulario-nuevo-usuario" *ngIf="mostrandoFormulario">
+    <div class="formulario-header">
+      <h2>
+        <i class="fas" 
+           [class.fa-user]="tipoUsuarioNuevo === TipoUsuario.PACIENTE"
+           [class.fa-user-md]="tipoUsuarioNuevo === TipoUsuario.ESPECIALISTA"
+           [class.fa-user-shield]="tipoUsuarioNuevo === TipoUsuario.ADMIN"></i>
+        Nuevo {{ tipoUsuarioNuevo }}
+      </h2>
+      <button type="button" class="btn btn-light" (click)="cancelarFormulario()">
+        <i class="fas fa-times"></i>
+        Cancelar
+      </button>
+    </div>
+
+    <form [formGroup]="formularioNuevoUsuario" (ngSubmit)="guardarUsuario()" class="formulario-usuario">
+      <!-- Datos básicos -->
+      <div class="seccion-formulario">
+        <h3>Datos Personales</h3>
+        <div class="campos-row">
+          <div class="campo">
+            <label>Nombre *</label>
+            <input 
+              type="text" 
+              formControlName="nombre" 
+              class="form-control"
+              [class.error]="formControls['nombre'].invalid && formControls['nombre'].touched">
+            <div *ngIf="formControls['nombre'].invalid && formControls['nombre'].touched" class="mensaje-error">
+              <span *ngIf="formControls['nombre'].errors?.['required']">El nombre es requerido</span>
+              <span *ngIf="formControls['nombre'].errors?.['minlength']">Mínimo 2 caracteres</span>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label>Apellido *</label>
+            <input 
+              type="text" 
+              formControlName="apellido" 
+              class="form-control"
+              [class.error]="formControls['apellido'].invalid && formControls['apellido'].touched">
+            <div *ngIf="formControls['apellido'].invalid && formControls['apellido'].touched" class="mensaje-error">
+              <span *ngIf="formControls['apellido'].errors?.['required']">El apellido es requerido</span>
+              <span *ngIf="formControls['apellido'].errors?.['minlength']">Mínimo 2 caracteres</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="campos-row">
+          <div class="campo">
+            <label>Edad *</label>
+            <input 
+              type="number" 
+              formControlName="edad" 
+              class="form-control"
+              [class.error]="formControls['edad'].invalid && formControls['edad'].touched">
+            <div *ngIf="formControls['edad'].invalid && formControls['edad'].touched" class="mensaje-error">
+              <span *ngIf="formControls['edad'].errors?.['required']">La edad es requerida</span>
+              <span *ngIf="formControls['edad'].errors?.['min'] || formControls['edad'].errors?.['max']">Edad entre 1 y 120 años</span>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label>DNI *</label>
+            <input 
+              type="text" 
+              formControlName="dni" 
+              class="form-control"
+              [class.error]="formControls['dni'].invalid && formControls['dni'].touched">
+            <div *ngIf="formControls['dni'].invalid && formControls['dni'].touched" class="mensaje-error">
+              <span *ngIf="formControls['dni'].errors?.['required']">El DNI es requerido</span>
+              <span *ngIf="formControls['dni'].errors?.['pattern']">DNI debe tener 7 u 8 dígitos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Datos de acceso -->
+      <div class="seccion-formulario">
+        <h3>Datos de Acceso</h3>
+        <div class="campos-row">
+          <div class="campo">
+            <label>Email *</label>
+            <input 
+              type="email" 
+              formControlName="email" 
+              class="form-control"
+              [class.error]="formControls['email'].invalid && formControls['email'].touched">
+            <div *ngIf="formControls['email'].invalid && formControls['email'].touched" class="mensaje-error">
+              <span *ngIf="formControls['email'].errors?.['required']">El email es requerido</span>
+              <span *ngIf="formControls['email'].errors?.['email']">Email inválido</span>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label>Contraseña *</label>
+            <input 
+              type="password" 
+              formControlName="password" 
+              class="form-control"
+              [class.error]="formControls['password'].invalid && formControls['password'].touched">
+            <div *ngIf="formControls['password'].invalid && formControls['password'].touched" class="mensaje-error">
+              <span *ngIf="formControls['password'].errors?.['required']">La contraseña es requerida</span>
+              <span *ngIf="formControls['password'].errors?.['minlength']">Mínimo 6 caracteres</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campos específicos para Paciente -->
+      <div *ngIf="tipoUsuarioNuevo === TipoUsuario.PACIENTE" class="seccion-formulario">
+        <h3>Información del Paciente</h3>
+        <div class="campo">
+          <label>Obra Social *</label>
+          <input 
+            type="text" 
+            formControlName="obra_social" 
+            class="form-control"
+            [class.error]="formControls['obra_social'].invalid && formControls['obra_social'].touched">
+          <div *ngIf="formControls['obra_social'].invalid && formControls['obra_social'].touched" class="mensaje-error">
+            <span *ngIf="formControls['obra_social'].errors?.['required']">La obra social es requerida</span>
+          </div>
+        </div>
+
+        <div class="imagenes-perfil">
+          <div class="campo-imagen">
+            <label>Imagen de Perfil 1 *</label>
+            <input 
+              type="file" 
+              accept="image/*" 
+              (change)="onImagenSeleccionada($event, 'perfil1')"
+              class="form-control">
+            <small>Archivo JPG, PNG o GIF. Máximo 5MB.</small>
+          </div>
+
+          <div class="campo-imagen">
+            <label>Imagen de Perfil 2 *</label>
+            <input 
+              type="file" 
+              accept="image/*" 
+              (change)="onImagenSeleccionada($event, 'perfil2')"
+              class="form-control">
+            <small>Archivo JPG, PNG o GIF. Máximo 5MB.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campos específicos para Especialista -->
+      <div *ngIf="tipoUsuarioNuevo === TipoUsuario.ESPECIALISTA" class="seccion-formulario">
+        <h3>Información del Especialista</h3>
+        
+        <div class="campo">
+          <label>Especialidades *</label>
+          <div class="especialidades-grid">
+            <div *ngFor="let especialidad of especialidades" class="especialidad-check">
+              <input 
+                type="checkbox" 
+                [id]="'esp_' + especialidad.id"
+                [checked]="isEspecialidadSelected(especialidad.id)"
+                (change)="onEspecialidadChange(especialidad.id!, $event)">
+              <label [for]="'esp_' + especialidad.id">{{ especialidad.nombre }}</label>
+            </div>
+          </div>
+          <div *ngIf="formControls['especialidades'].invalid && formControls['especialidades'].touched" class="mensaje-error">
+            <span *ngIf="formControls['especialidades'].errors?.['required']">Debe seleccionar al menos una especialidad</span>
+          </div>
+        </div>
+
+        <div class="campo-imagen">
+          <label>Imagen de Perfil *</label>
+          <input 
+            type="file" 
+            accept="image/*" 
+            (change)="onImagenSeleccionada($event, 'perfil')"
+            class="form-control">
+          <small>Archivo JPG, PNG o GIF. Máximo 5MB.</small>
+        </div>
+      </div>
+
+      <!-- Campos específicos para Administrador -->
+      <div *ngIf="tipoUsuarioNuevo === TipoUsuario.ADMIN" class="seccion-formulario">
+        <h3>Información del Administrador</h3>
+        
+        <div class="campo-imagen">
+          <label>Imagen de Perfil</label>
+          <input 
+            type="file" 
+            accept="image/*" 
+            (change)="onImagenSeleccionada($event, 'perfil')"
+            class="form-control">
+          <small>Archivo JPG, PNG o GIF. Máximo 5MB.</small>
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="botones-formulario">
+        <button type="button" class="btn btn-light" (click)="cancelarFormulario()">
+          <i class="fas fa-times"></i>
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="formularioNuevoUsuario.invalid || loading">
+          <i class="fas fa-save"></i>
+          {{ loading ? 'Guardando...' : 'Guardar Usuario' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

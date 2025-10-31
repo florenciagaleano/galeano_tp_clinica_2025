@@ -40,3 +40,24 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# GitHub Copilot Instructions - No subir instrucciones al repositorio
+.github/instructions/
+**/instructions/
+**/*.instructions.md
+**/copilot-instructions.*
+.copilot/
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+
+# Firebase
+/.firebase
+*-debug.log
+.runtimeconfig.json
+
+# Supabase
+.supabase/

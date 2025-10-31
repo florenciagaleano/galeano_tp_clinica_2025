@@ -14,6 +14,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/register/register.component').then(m => m.RegisterComponent)
   },
   {
+    path: 'usuarios',
+    loadComponent: () => import('./components/usuarios/usuarios.component').then(m => m.UsuariosComponent)
+  },
+  {
     path: '**',
     redirectTo: '',
     pathMatch: 'full'

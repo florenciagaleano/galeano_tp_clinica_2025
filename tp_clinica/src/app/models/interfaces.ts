@@ -100,3 +100,32 @@ export interface FormValidationResult {
   isValid: boolean;
   errors: ValidationError[];
 }
+
+// =============================================
+// ADMINISTRADOR
+// =============================================
+
+export interface Administrador {
+  id?: string;
+  user_id?: string;
+  nombre: string;
+  apellido: string;
+  edad: number;
+  dni: string;
+  email: string;
+  imagen_perfil?: string;
+  activo?: boolean;
+  email_verificado?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface RegistroAdministradorForm {
+  nombre: string;
+  apellido: string;
+  edad: number;
+  dni: string;
+  email: string;
+  password: string;
+  imagen_perfil?: File;
+}

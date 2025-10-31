@@ -300,13 +300,28 @@
       <!-- Nueva especialidad -->
       <div class="form-group">
         <label for="nueva_especialidad">Agregar Nueva Especialidad (opcional)</label>
-        <input 
-          type="text" 
-          id="nueva_especialidad" 
-          formControlName="nueva_especialidad"
-          class="form-control"
-          placeholder="Ej: Endocrinología">
+        <div class="nueva-especialidad-container">
+          <input 
+            type="text" 
+            id="nueva_especialidad" 
+            formControlName="nueva_especialidad"
+            class="form-control"
+            placeholder="Ej: Endocrinología"
+            [disabled]="agregandoEspecialidad">
+          <button 
+            type="button"
+            class="btn-add-especialidad"
+            (click)="agregarNuevaEspecialidad()"
+            [disabled]="!formularioEspecialista.get('nueva_especialidad')?.value || agregandoEspecialidad">
+            <i *ngIf="agregandoEspecialidad" class="fas fa-spinner fa-spin"></i>
+            <i *ngIf="!agregandoEspecialidad" class="fas fa-plus"></i>
+            {{ agregandoEspecialidad ? 'Agregando...' : 'Agregar' }}
+          </button>
+        </div>
         <small class="help-text">Si su especialidad no está en la lista, puede agregarla aquí</small>
+        <div *ngIf="mensajeEspecialidad" class="mensaje-especialidad" [class.success]="tipoMensajeEspecialidad === 'success'" [class.error]="tipoMensajeEspecialidad === 'error'">
+          {{ mensajeEspecialidad }}
+        </div>
       </div>
 
       <!-- Imagen de perfil -->
@@ -320,11 +335,6 @@
           (change)="onImagenSeleccionada($event, 'especialista')"
           required>
         <small class="help-text">Formato: JPG, PNG. Máximo 5MB</small>
-      </div>
-
-      <div class="info-note">
-        <i class="fas fa-info-circle"></i>
-        <p>Los especialistas requieren aprobación del administrador antes de poder acceder al sistema.</p>
       </div>
 
       <button 

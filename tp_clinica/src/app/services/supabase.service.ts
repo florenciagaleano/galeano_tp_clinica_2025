@@ -7,6 +7,8 @@ import {
   Especialidad, 
   RegistroPacienteForm, 
   RegistroEspecialistaForm,
+  Administrador,
+  RegistroAdministradorForm,
   AuthResponse,
   TipoUsuario 
 } from '../models/interfaces';
@@ -54,14 +56,23 @@ export class SupabaseService {
       console.log('Resultado auth:', { authData, authError });
 
       if (authError) {
-        switch (authError.message) {
-          case 'User already registered':
-            return { success: false, message: 'El email ya está registrado. Intenta iniciar sesión.' };
-          case 'Password should be at least 6 characters':
-            return { success: false, message: 'La contraseña debe tener al menos 6 caracteres.' };
-          default:
-            return { success: false, message: authError.message };
+        // Mejorar manejo de errores de autenticación
+        let errorMessage = 'Error en el registro';
+        
+        if (authError.message?.includes('User already registered') || authError.message?.includes('already registered')) {
+          errorMessage = 'El email ya está registrado. Por favor, intenta iniciar sesión o usa otro email.';
+        } else if (authError.message?.includes('Password should be at least 6 characters')) {
+          errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
+        } else if (authError.message?.includes('Invalid email')) {
+          errorMessage = 'El formato del email no es válido.';
+        } else if (authError.message?.includes('weak password')) {
+          errorMessage = 'La contraseña es muy débil. Usa una contraseña más segura.';
+        } else {
+          errorMessage = `Error de autenticación: ${authError.message}`;
         }
+        
+        console.error('Error de autenticación:', authError);
+        return { success: false, message: errorMessage };
       }
 
       if (!authData.user) {
@@ -122,12 +133,27 @@ export class SupabaseService {
           console.warn('Error al hacer signOut:', e);
         }
 
-        switch (pacienteError.message) {
-          case 'Duplicate entry':
-            return { success: false, message: 'El DNI ya está registrado. Usa otro DNI.' };
-          default:
+        // Mejorar manejo de errores de duplicación
+        let errorMessage = 'Error al registrar paciente';
+        
+        if (pacienteError.code === '23505' || pacienteError.message?.includes('duplicate') || pacienteError.message?.includes('unique')) {
+          // Error de violación de restricción de unicidad
+          const details = pacienteError.details || '';
+          const message = pacienteError.message || '';
+          
+          if (message.includes('email') || details.includes('email')) {
+            errorMessage = 'El email ya está registrado. Por favor, usa otro email.';
+          } else if (message.includes('dni') || details.includes('dni') || details.includes('Key (dni)')) {
+            errorMessage = 'El DNI ya está registrado. Por favor, usa otro DNI.';
+          } else {
+            errorMessage = 'Ya existe un usuario con estos datos. Verifica el email y DNI.';
+          }
+        } else {
+          errorMessage = `Error al crear paciente: ${pacienteError.message}`;
         }
-        return { success: false, message: `Error al crear paciente: ${pacienteError.message}. Detalles: ${JSON.stringify(pacienteError)}` };
+
+        console.error('Error:', pacienteError);
+        return { success: false, message: errorMessage };
       }
 
       return {
@@ -155,7 +181,23 @@ export class SupabaseService {
       });
 
       if (authError) {
-        return { success: false, message: authError.message };
+        // Mejorar manejo de errores de autenticación
+        let errorMessage = 'Error en el registro';
+        
+        if (authError.message?.includes('User already registered') || authError.message?.includes('already registered')) {
+          errorMessage = 'El email ya está registrado. Por favor, intenta iniciar sesión o usa otro email.';
+        } else if (authError.message?.includes('Password should be at least 6 characters')) {
+          errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
+        } else if (authError.message?.includes('Invalid email')) {
+          errorMessage = 'El formato del email no es válido.';
+        } else if (authError.message?.includes('weak password')) {
+          errorMessage = 'La contraseña es muy débil. Usa una contraseña más segura.';
+        } else {
+          errorMessage = `Error de autenticación: ${authError.message}`;
+        }
+        
+        console.error('Error de autenticación:', authError);
+        return { success: false, message: errorMessage };
       }
 
       if (!authData.user) {
@@ -190,7 +232,28 @@ export class SupabaseService {
 
       if (especialistaError) {
         await this.supabase.auth.admin.deleteUser(authData.user.id);
-        return { success: false, message: `Error al crear especialista: ${especialistaError.message}` };
+        
+        // Mejorar manejo de errores de duplicación
+        let errorMessage = 'Error al registrar especialista';
+        
+        if (especialistaError.code === '23505' || especialistaError.message?.includes('duplicate') || especialistaError.message?.includes('unique')) {
+          // Error de violación de restricción de unicidad
+          const details = especialistaError.details || '';
+          const message = especialistaError.message || '';
+          
+          if (message.includes('email') || details.includes('email')) {
+            errorMessage = 'El email ya está registrado. Por favor, usa otro email.';
+          } else if (message.includes('dni') || details.includes('dni') || details.includes('Key (dni)')) {
+            errorMessage = 'El DNI ya está registrado. Por favor, usa otro DNI.';
+          } else {
+            errorMessage = 'Ya existe un usuario con estos datos. Verifica el email y DNI.';
+          }
+        } else {
+          errorMessage = `Error al crear especialista: ${especialistaError.message}`;
+        }
+
+        console.error('Error detallado:', especialistaError);
+        return { success: false, message: errorMessage };
       }
 
       // 4. Agregar nueva especialidad si se especifica
@@ -221,6 +284,123 @@ export class SupabaseService {
         success: true,
         message: 'Especialista registrado exitosamente. Pendiente de aprobación por administrador.',
         data: especialistaResult
+      };
+
+    } catch (error: any) {
+      return { success: false, message: error.message };
+    }
+  }
+
+  async registrarAdministrador(formData: RegistroAdministradorForm): Promise<AuthResponse> {
+    try {
+      console.log('Iniciando registro de administrador...', { email: formData.email });
+      
+      // 1. Registrar usuario en auth
+      const { data: authData, error: authError } = await this.supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            role: TipoUsuario.ADMIN
+          }
+        }
+      });
+
+      if (authError) {
+        console.error('Error en auth:', authError);
+        
+        // Mejorar manejo de errores de autenticación
+        let errorMessage = 'Error en el registro';
+        
+        if (authError.message?.includes('User already registered') || authError.message?.includes('already registered')) {
+          errorMessage = 'El email ya está registrado. Por favor, intenta iniciar sesión o usa otro email.';
+        } else if (authError.message?.includes('Password should be at least 6 characters')) {
+          errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
+        } else if (authError.message?.includes('Invalid email')) {
+          errorMessage = 'El formato del email no es válido.';
+        } else if (authError.message?.includes('weak password')) {
+          errorMessage = 'La contraseña es muy débil. Usa una contraseña más segura.';
+        } else {
+          errorMessage = `Error de autenticación: ${authError.message}`;
+        }
+        
+        return { success: false, message: errorMessage };
+      }
+
+      if (!authData.user) {
+        return { success: false, message: 'Error al crear usuario' };
+      }
+
+      console.log('Usuario auth creado:', authData.user.id);
+
+      // 2. Subir imagen de perfil si existe
+      let imagenPerfilUrl = '';
+      if (formData.imagen_perfil) {
+        console.log('Subiendo imagen de administrador...');
+        const imagenResult = await this.subirImagen(formData.imagen_perfil, 'administradores');
+        console.log('Resultado imagen administrador:', imagenResult);
+        if (imagenResult.success) {
+          imagenPerfilUrl = imagenResult.url!;
+        } else {
+          console.warn('No se pudo subir la imagen:', imagenResult.error);
+          // No fallar todo el registro por la imagen
+        }
+      }
+
+      // 3. Crear registro en la tabla administradores
+      const administradorData = {
+        user_id: authData.user.id,
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        edad: formData.edad,
+        dni: formData.dni,
+        email: formData.email,
+        imagen_perfil: imagenPerfilUrl,
+        activo: true,
+        email_verificado: false
+      };
+
+      const { data: administradorResult, error: administradorError } = await this.supabase
+        .from('administradores')
+        .insert([administradorData])
+        .select()
+        .single();
+
+      if (administradorError) {
+        console.error('Error al crear administrador:', administradorError);
+        
+        // Limpiar el usuario de auth si falló la inserción
+        await this.supabase.auth.admin.deleteUser(authData.user.id);
+        
+        // Mejorar manejo de errores de duplicación
+        let errorMessage = 'Error al registrar administrador';
+        
+        if (administradorError.code === '23505' || administradorError.message?.includes('duplicate') || administradorError.message?.includes('unique')) {
+          // Error de violación de restricción de unicidad
+          const details = administradorError.details || '';
+          const message = administradorError.message || '';
+          
+          if (message.includes('email') || details.includes('email')) {
+            errorMessage = 'El email ya está registrado. Por favor, usa otro email.';
+          } else if (message.includes('dni') || details.includes('dni') || details.includes('Key (dni)')) {
+            errorMessage = 'El DNI ya está registrado. Por favor, usa otro DNI.';
+          } else {
+            errorMessage = 'Ya existe un usuario con estos datos. Verifica el email y DNI.';
+          }
+        } else {
+          errorMessage = `Error al crear administrador: ${administradorError.message}`;
+        }
+
+        console.error('Error detallado:', administradorError);
+        return { success: false, message: errorMessage };
+      }
+
+      console.log('Administrador creado exitosamente:', administradorResult);
+
+      return {
+        success: true,
+        message: 'Administrador registrado exitosamente.',
+        data: administradorResult
       };
 
     } catch (error: any) {

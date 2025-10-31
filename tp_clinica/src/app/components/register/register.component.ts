@@ -8,6 +8,7 @@ import {
   Especialidad, 
   TipoUsuario 
 } from '../../models/interfaces';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -28,6 +29,11 @@ export class RegisterComponent implements OnInit {
   mensaje = '';
   mensajeTipo: 'success' | 'error' = 'success';
 
+  // Variables para nueva especialidad
+  agregandoEspecialidad = false;
+  mensajeEspecialidad = '';
+  tipoMensajeEspecialidad: 'success' | 'error' = 'success';
+
   // Referencias para archivos
   imagenPerfil1: File | null = null;
   imagenPerfil2: File | null = null;
@@ -35,7 +41,8 @@ export class RegisterComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private supabaseService: SupabaseService
+    private supabaseService: SupabaseService,
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -179,6 +186,12 @@ export class RegisterComponent implements OnInit {
         this.mostrarMensaje(resultado.message, 'success');
         formulario.reset();
         this.limpiarImagenes();
+        
+        // Navegar al login después de registro exitoso
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 2000); // Esperar 2 segundos para que el usuario vea el mensaje
+
       } else {
         this.mostrarMensaje(resultado.message, 'error');
       }
@@ -260,5 +273,60 @@ export class RegisterComponent implements OnInit {
     if (errors['passwordMismatch']) return 'Las contraseñas no coinciden';
 
     return 'Campo inválido';
+  }
+
+  // Método para agregar nueva especialidad
+  async agregarNuevaEspecialidad() {
+    const nombreEspecialidad = this.formularioEspecialista.get('nueva_especialidad')?.value?.trim();
+    
+    if (!nombreEspecialidad) {
+      this.mostrarMensajeEspecialidad('Por favor ingrese el nombre de la especialidad', 'error');
+      return;
+    }
+
+    this.agregandoEspecialidad = true;
+    this.mensajeEspecialidad = '';
+
+    try {
+      const resultado = await this.supabaseService.agregarEspecialidad({
+        nombre: nombreEspecialidad,
+        descripcion: `Especialidad agregada por usuario: ${nombreEspecialidad}`
+      });
+
+      if (resultado.success) {
+        this.mostrarMensajeEspecialidad('Especialidad agregada exitosamente', 'success');
+        
+        // Limpiar el campo
+        this.formularioEspecialista.patchValue({ nueva_especialidad: '' });
+        
+        // Recargar las especialidades
+        await this.cargarEspecialidades();
+        
+        // Seleccionar automáticamente la nueva especialidad
+        if (resultado.data) {
+          const especialidadesActuales = this.formularioEspecialista.get('especialidades')?.value || [];
+          especialidadesActuales.push(resultado.data.id);
+          this.formularioEspecialista.patchValue({ especialidades: especialidadesActuales });
+        }
+        
+      } else {
+        this.mostrarMensajeEspecialidad(resultado.message, 'error');
+      }
+
+    } catch (error: any) {
+      this.mostrarMensajeEspecialidad(`Error: ${error.message}`, 'error');
+    } finally {
+      this.agregandoEspecialidad = false;
+    }
+  }
+
+  private mostrarMensajeEspecialidad(mensaje: string, tipo: 'success' | 'error') {
+    this.mensajeEspecialidad = mensaje;
+    this.tipoMensajeEspecialidad = tipo;
+    
+    // Limpiar mensaje después de 5 segundos
+    setTimeout(() => {
+      this.mensajeEspecialidad = '';
+    }, 5000);
   }
 }

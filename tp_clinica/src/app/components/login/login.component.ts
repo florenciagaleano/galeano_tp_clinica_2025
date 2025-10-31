@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
       if (resultado.success) {
         this.mostrarMensaje('Inicio de sesión exitoso', 'success');
         // Redirigir según el tipo de usuario
-        await this.redirigirSegunTipoUsuario();
+        await this.redirigirSegunTipoUsuario(email);
       } else {
         this.mostrarMensaje("Error: credenciales inválidas", 'error');
       }
@@ -71,9 +71,13 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  async redirigirSegunTipoUsuario() {
+  async redirigirSegunTipoUsuario(mail: string) {
     // Aquí determinarías el tipo de usuario y redirigir
     // Por ahora, redirigir a una página de dashboard general
+    if(mail.includes('admin')) {
+      this.router.navigate(['/usuarios']);
+      return;
+    }
     this.router.navigate(['/']);
   }
 
