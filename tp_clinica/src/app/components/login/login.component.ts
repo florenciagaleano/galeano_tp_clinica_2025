@@ -20,9 +20,48 @@ export class LoginComponent implements OnInit {
 
   // Usuarios de acceso rápido
   usuariosRapidos = [
-    { email: 'paciente@test.com', password: '123456', tipo: 'Paciente' },
-    { email: 'especialista@test.com', password: '123456', tipo: 'Especialista' },
-    { email: 'admin@clinica.com', password: '123456', tipo: 'Administrador' }
+    { 
+      email: 'paciente@test.com', 
+      password: '123456', 
+      tipo: 'Paciente',
+      nombre: 'Lily Test',
+      imagen_perfil: 'https://jufqrifecxbmqpauujbk.supabase.co/storage/v1/object/public/profiles/pacientes/1761622517115_oeapjct1y5q.jpg'
+    },
+    { 
+      email: 'paciente2@test.com', 
+      password: '123456', 
+      tipo: 'Paciente',
+      nombre: 'Leandro Test2',
+      imagen_perfil: 'https://jufqrifecxbmqpauujbk.supabase.co/storage/v1/object/public/profiles/pacientes/632890a6edbe7f00190ed32c.webp'
+    },
+    { 
+      email: 'paciente3@test.com', 
+      password: '123456', 
+      tipo: 'Paciente',
+      nombre: 'Robin Test3',
+      imagen_perfil: 'https://jufqrifecxbmqpauujbk.supabase.co/storage/v1/object/public/profiles/pacientes/images%20(1).jpg'
+    },
+    { 
+      email: 'especialista@test.com', 
+      password: '123456', 
+      tipo: 'Especialista',
+      nombre: 'Dr. Meredith Grey',
+      imagen_perfil: 'https://jufqrifecxbmqpauujbk.supabase.co/storage/v1/object/public/profiles/especialistas/meredithgrey.jpg'
+    },
+    { 
+      email: 'especialista2@test.com', 
+      password: '123456', 
+      tipo: 'Especialista',
+      nombre: 'Dr. Luis Rodríguez',
+      imagen_perfil: 'https://jufqrifecxbmqpauujbk.supabase.co/storage/v1/object/public/profiles/especialistas/patrick_dempsey_greys_anatomy_dead.webp'
+    },
+    { 
+      email: 'admin@clinica.com', 
+      password: '123456', 
+      tipo: 'Administrador',
+      nombre: 'Admin Principal',
+      imagen_perfil: 'https://jufqrifecxbmqpauujbk.supabase.co/storage/v1/object/public/profiles/administradores/richard_admin.jpg'
+    }
   ];
 
   constructor(

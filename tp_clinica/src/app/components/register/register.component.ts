@@ -21,7 +21,7 @@ export class RegisterComponent implements OnInit {
   // Exponer el enum para uso en el template
   TipoUsuario = TipoUsuario;
   
-  tipoUsuarioSeleccionado: TipoUsuario = TipoUsuario.PACIENTE;
+  tipoUsuarioSeleccionado: TipoUsuario | null = null; // Inicialmente null para mostrar la selección
   formularioPaciente!: FormGroup;
   formularioEspecialista!: FormGroup;
   especialidades: Especialidad[] = [];
@@ -96,6 +96,18 @@ export class RegisterComponent implements OnInit {
   seleccionarTipoUsuario(tipo: TipoUsuario) {
     this.tipoUsuarioSeleccionado = tipo;
     this.mensaje = '';
+  }
+
+  volverASeleccion() {
+    this.tipoUsuarioSeleccionado = null;
+    this.mensaje = '';
+    // Limpiar formularios
+    this.formularioPaciente.reset();
+    this.formularioEspecialista.reset();
+    // Limpiar archivos
+    this.imagenPerfil1 = null;
+    this.imagenPerfil2 = null;
+    this.imagenPerfilEspecialista = null;
   }
 
   // Manejo de archivos

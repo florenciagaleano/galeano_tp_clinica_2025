@@ -27,15 +27,127 @@
   overflow-y: auto;
 }
 
-.register-title {
+/* Selección inicial de tipo de usuario */
+.user-type-selection {
   text-align: center;
-  margin-bottom: 30px;
+}
+
+.selection-header {
+  margin-bottom: 40px;
+}
+
+.selection-header h2 {
   color: var(--fourth-color);
   font-size: 2.5rem;
   font-weight: 700;
+  margin-bottom: 10px;
 }
 
-/* Selector de tipo de usuario */
+.selection-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.type-buttons-container {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.type-btn-round {
+  background: white;
+  border: 3px solid var(--second-color);
+  border-radius: 50px;
+  padding: 40px 30px;
+  width: 280px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  
+  &:hover {
+    background: var(--second-color);
+    color: white;
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(185, 225, 220, 0.4);
+    
+    .type-icon i {
+      color: white;
+    }
+  }
+}
+
+.type-icon {
+  margin-bottom: 20px;
+  
+  i {
+    font-size: 4rem;
+    color: var(--third-color);
+    transition: color 0.3s ease;
+  }
+  
+  img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+  }
+}
+
+.type-btn-round h3 {
+  color: var(--fourth-color);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 15px 0 10px 0;
+}
+
+.type-btn-round p {
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Header del formulario */
+.form-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  gap: 15px;
+}
+
+.btn-back {
+  background: var(--second-color);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: var(--fourth-color);
+    transform: translateX(-5px);
+  }
+  
+  i {
+    color: white;
+    font-size: 1.1rem;
+  }
+}
+
+.register-title {
+  text-align: left;
+  margin: 0;
+  color: var(--fourth-color);
+  font-size: 2rem;
+  font-weight: 700;
+  flex: 1;
+}
+
+/* Selector de tipo de usuario original (mantener para compatibilidad) */
 .user-type-selector {
   display: flex;
   gap: 10px;

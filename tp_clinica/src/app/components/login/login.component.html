@@ -58,18 +58,31 @@
         <i class="fas fa-rocket"></i>
         Acceso Rápido
       </h3>
-      <div class="quick-buttons">
+      <div class="quick-buttons-grid">
         <button 
           *ngFor="let usuario of usuariosRapidos"
-          class="btn-quick"
+          class="btn-quick-round"
           (click)="loginRapido(usuario)"
-          [disabled]="loading">
-          <i [ngClass]="{
-            'fas fa-user': usuario.tipo === 'Paciente',
-            'fas fa-user-md': usuario.tipo === 'Especialista', 
-            'fas fa-user-shield': usuario.tipo === 'Administrador'
-          }"></i>
-          {{ usuario.tipo }}
+          [disabled]="loading"
+          [title]="usuario.nombre + ' - ' + usuario.tipo">
+          <div class="avatar-container">
+            <img 
+              *ngIf="usuario.imagen_perfil" 
+              [src]="usuario.imagen_perfil" 
+              [alt]="usuario.nombre"
+              class="avatar-img">
+            <div *ngIf="!usuario.imagen_perfil" class="avatar-placeholder">
+              <i [ngClass]="{
+                'fas fa-user': usuario.tipo === 'Paciente',
+                'fas fa-user-md': usuario.tipo === 'Especialista', 
+                'fas fa-user-shield': usuario.tipo === 'Administrador'
+              }"></i>
+            </div>
+          </div>
+          <span class="usuario-info">
+            <strong>{{ usuario.nombre }}</strong>
+            <small>{{ usuario.tipo }}</small>
+          </span>
         </button>
       </div>
     </div>

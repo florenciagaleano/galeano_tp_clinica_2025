@@ -86,7 +86,7 @@ export class UsuariosComponent implements OnInit {
     this.formularioNuevoUsuario = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
       apellido: ['', [Validators.required, Validators.minLength(2)]],
-      edad: ['', [Validators.required, Validators.min(1), Validators.max(120)]],
+      edad: ['', [Validators.required, Validators.min(18), Validators.max(100)]],
       dni: ['', [Validators.required, Validators.pattern(/^\d{7,8}$/)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],

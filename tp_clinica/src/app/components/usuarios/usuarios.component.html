@@ -126,7 +126,7 @@
             </td>
 
             <!-- Estado -->
-            <!--<td class="columna-estado">
+            <td class="columna-estado">
               <div class="estado-container">
                 <span class="estado" [class.activo]="usuario.activo" [class.inactivo]="!usuario.activo">
                   <i class="fas" [class.fa-check-circle]="usuario.activo" [class.fa-times-circle]="!usuario.activo"></i>
@@ -141,12 +141,12 @@
                   {{ usuario.aprobado_por_admin ? 'Aprobado' : 'Pendiente' }}
                 </span>
 
-                <span class="verificacion" [class.verificado]="usuario.email_verificado" [class.no-verificado]="!usuario.email_verificado">
+                <!--<span class="verificacion" [class.verificado]="usuario.email_verificado" [class.no-verificado]="!usuario.email_verificado">
                   <i class="fas" [class.fa-envelope-check]="usuario.email_verificado" [class.fa-envelope]="!usuario.email_verificado"></i>
                   {{ usuario.email_verificado ? 'Email Verificado' : 'Email Pendiente' }}
-                </span>
+                </span>-->
               </div>
-            </td>-->
+            </td>
 
             <!-- Información Adicional -->
             <td class="columna-info">
@@ -171,7 +171,7 @@
             <td class="columna-acciones">
               <div class="acciones">
                 <!-- Activar/Desactivar -->
-                <!--<button 
+                <button 
                   type="button" 
                   class="btn btn-sm"
                   [class.btn-danger]="usuario.activo"
@@ -179,7 +179,7 @@
                   (click)="toggleActivarUsuario(usuario)"
                   [title]="usuario.activo ? 'Desactivar usuario' : 'Activar usuario'">
                   <i class="fas" [class.fa-user-slash]="usuario.activo" [class.fa-user-check]="!usuario.activo"></i>
-                </button>-->
+                </button>
 
                 <!-- Aprobar Especialista -->
                 <ng-container *ngIf="usuario.tipo === TipoUsuario.ESPECIALISTA">
@@ -264,7 +264,7 @@
               [class.error]="formControls['edad'].invalid && formControls['edad'].touched">
             <div *ngIf="formControls['edad'].invalid && formControls['edad'].touched" class="mensaje-error">
               <span *ngIf="formControls['edad'].errors?.['required']">La edad es requerida</span>
-              <span *ngIf="formControls['edad'].errors?.['min'] || formControls['edad'].errors?.['max']">Edad entre 1 y 120 años</span>
+              <span *ngIf="formControls['edad'].errors?.['min'] || formControls['edad'].errors?.['max']">Edad entre 18 y 100 años</span>
             </div>
           </div>
 

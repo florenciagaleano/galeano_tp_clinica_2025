@@ -1,26 +1,50 @@
 <div class="register-container">
   <div class="register-card">
-    <h2 class="register-title">Registro de Usuario</h2>
     
-    <!-- Selector de tipo de usuario -->
-    <div class="user-type-selector">
-      <button 
-        type="button"
-        class="type-btn"
-        [class.active]="tipoUsuarioSeleccionado === TipoUsuario.PACIENTE"
-        (click)="seleccionarTipoUsuario(TipoUsuario.PACIENTE)">
-        <i class="fas fa-user"></i>
-        Paciente
-      </button>
-      <button 
-        type="button"
-        class="type-btn"
-        [class.active]="tipoUsuarioSeleccionado === TipoUsuario.ESPECIALISTA"
-        (click)="seleccionarTipoUsuario(TipoUsuario.ESPECIALISTA)">
-        <i class="fas fa-user-md"></i>
-        Especialista
-      </button>
+    <!-- Selección inicial de tipo de usuario con botones redondos -->
+    <div *ngIf="!tipoUsuarioSeleccionado" class="user-type-selection">
+      <div class="selection-header">
+        <h2>¿Cómo deseas registrarte?</h2>
+        <p>Selecciona el tipo de cuenta que necesitas</p>
+      </div>
+      
+      <div class="type-buttons-container">
+        <button 
+          type="button"
+          class="type-btn-round"
+          (click)="seleccionarTipoUsuario(TipoUsuario.PACIENTE)">
+          <div class="type-icon">
+            <img src="assets/icons/paciente-icon.png" alt="Paciente" *ngIf="false">
+            <i class="fas fa-user"></i>
+          </div>
+          <h3>Paciente</h3>
+          <p>Solicita turnos y gestiona tu atención médica</p>
+        </button>
+        
+        <button 
+          type="button"
+          class="type-btn-round"
+          (click)="seleccionarTipoUsuario(TipoUsuario.ESPECIALISTA)">
+          <div class="type-icon">
+            <img src="assets/icons/especialista-icon.png" alt="Especialista" *ngIf="false">
+            <i class="fas fa-user-md"></i>
+          </div>
+          <h3>Especialista</h3>
+          <p>Brinda atención médica y gestiona tu agenda</p>
+        </button>
+      </div>
     </div>
+
+    <!-- Formulario de registro (se muestra después de seleccionar tipo) -->
+    <div *ngIf="tipoUsuarioSeleccionado" class="register-form-container">
+      <div class="form-header">
+        <button type="button" class="btn-back" (click)="volverASeleccion()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <h2 class="register-title">
+          Registro de {{ tipoUsuarioSeleccionado }}
+        </h2>
+      </div>
 
     <!-- Mensajes -->
     <div *ngIf="mensaje" class="alert" [class.alert-success]="mensajeTipo === 'success'" [class.alert-error]="mensajeTipo === 'error'">
@@ -346,5 +370,6 @@
       </button>
     </form>
 
-  </div>
-</div>
+    </div> <!-- Cierre de register-form-container -->
+  </div> <!-- Cierre de register-card -->
+</div> <!-- Cierre de register-container -->

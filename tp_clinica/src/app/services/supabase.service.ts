@@ -111,7 +111,9 @@ export class SupabaseService {
         obra_social: formData.obra_social,
         email: formData.email,
         imagen_perfil_1: imagen_perfil_1_url,
-        imagen_perfil_2: imagen_perfil_2_url
+        imagen_perfil_2: imagen_perfil_2_url,
+        activo: true,  // Por defecto activo
+        email_verificado: false
       };
 
       console.log('Insertando paciente:', pacienteData);
@@ -184,7 +186,7 @@ export class SupabaseService {
         // Mejorar manejo de errores de autenticación
         let errorMessage = 'Error en el registro';
         
-        if (authError.message?.includes('User already registered') || authError.message?.includes('already registered')) {
+        if (authError.message?.includes('email') || authError.message?.includes('already registered')) {
           errorMessage = 'El email ya está registrado. Por favor, intenta iniciar sesión o usa otro email.';
         } else if (authError.message?.includes('Password should be at least 6 characters')) {
           errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
@@ -221,7 +223,10 @@ export class SupabaseService {
         edad: formData.edad,
         dni: formData.dni,
         email: formData.email,
-        imagen_perfil: imagen_perfil_url
+        imagen_perfil: imagen_perfil_url,
+        activo: true,  // Por defecto activo
+        email_verificado: false,
+        aprobado_por_admin: false  // Por defecto pendiente de aprobación
       };
 
       const { data: especialistaResult, error: especialistaError } = await this.supabase
@@ -410,6 +415,9 @@ export class SupabaseService {
 
   async iniciarSesion(email: string, password: string): Promise<AuthResponse> {
     try {
+      const usuarioActual = await this.obtenerUsuarioActual();
+      //console.log('Usuario actual antes de iniciar sesión:', usuarioActual);
+
       const { data, error } = await this.supabase.auth.signInWithPassword({
         email,
         password
@@ -417,6 +425,18 @@ export class SupabaseService {
 
       if (error) {
         return { success: false, message: error.message };
+      }
+
+      // Verificar el estado del usuario después de la autenticación exitosa
+      const validacionUsuario = await this.validarEstadoUsuario(data.user.id);
+      
+      if (!validacionUsuario.puedeAcceder) {
+        // Cerrar la sesión inmediatamente si no puede acceder
+        await this.supabase.auth.signOut();
+        return { 
+          success: false, 
+          message: validacionUsuario.mensaje 
+        };
       }
 
       return {
@@ -437,6 +457,87 @@ export class SupabaseService {
   async obtenerUsuarioActual(): Promise<User | null> {
     const { data: { user } } = await this.supabase.auth.getUser();
     return user;
+  }
+
+  // Nuevo método para validar el estado del usuario
+  private async validarEstadoUsuario(userId: string): Promise<{ puedeAcceder: boolean; mensaje: string; tipoUsuario?: TipoUsuario }> {
+    try {
+      // Buscar en pacientes
+      const { data: paciente } = await this.supabase
+        .from('pacientes')
+        .select('activo')
+        .eq('user_id', userId)
+        .single();
+
+      if (paciente) {
+        if (!paciente.activo) {
+          return {
+            puedeAcceder: false,
+            mensaje: 'Tu cuenta ha sido desactivada por un administrador. Contacta con soporte para más información.',
+            tipoUsuario: TipoUsuario.PACIENTE
+          };
+        }
+
+        return { puedeAcceder: true, mensaje: 'Acceso permitido', tipoUsuario: TipoUsuario.PACIENTE };
+      }
+
+      // Buscar en especialistas
+      const { data: especialista } = await this.supabase
+        .from('especialistas')
+        .select('activo, aprobado_por_admin')
+        .eq('user_id', userId)
+        .single();
+
+      if (especialista) {
+        if (!especialista.activo) {
+          return {
+            puedeAcceder: false,
+            mensaje: 'Tu cuenta ha sido desactivada por un administrador. Contacta con soporte para más información.',
+            tipoUsuario: TipoUsuario.ESPECIALISTA
+          };
+        }
+
+        if (!especialista.aprobado_por_admin) {
+          return {
+            puedeAcceder: false,
+            mensaje: 'Tu cuenta está pendiente de aprobación por un administrador. Te notificaremos cuando sea aprobada.',
+            tipoUsuario: TipoUsuario.ESPECIALISTA
+          };
+        }
+        return { puedeAcceder: true, mensaje: 'Acceso permitido', tipoUsuario: TipoUsuario.ESPECIALISTA };
+      }
+
+      // Buscar en administradores
+      const { data: administrador } = await this.supabase
+        .from('administradores')
+        .select('activo, email_verificado')
+        .eq('user_id', userId)
+        .single();
+
+      if (administrador) {
+        if (!administrador.activo) {
+          return {
+            puedeAcceder: false,
+            mensaje: 'Tu cuenta de administrador ha sido desactivada. Contacta con el administrador principal.',
+            tipoUsuario: TipoUsuario.ADMIN
+          };
+        }
+        return { puedeAcceder: true, mensaje: 'Acceso permitido', tipoUsuario: TipoUsuario.ADMIN };
+      }
+
+      // Si no se encuentra en ninguna tabla
+      return {
+        puedeAcceder: false,
+        mensaje: 'Usuario no encontrado en el sistema. Contacta con soporte.'
+      };
+
+    } catch (error) {
+      console.error('Error al validar estado del usuario:', error);
+      return {
+        puedeAcceder: false,
+        mensaje: 'Error al verificar el estado de la cuenta. Intenta nuevamente.'
+      };
+    }
   }
 
   // =============================================

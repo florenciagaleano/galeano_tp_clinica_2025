@@ -7,8 +7,9 @@
 }
 
 .login-container {
+  background-image: url('../../../assets/fondo.jpg');
+  background-size: cover;
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--fourth-color) 0%, var(--second-color) 100%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -17,7 +18,7 @@
 }
 
 .login-card {
-  background: var(--first-color);
+  background: rgba(255, 255, 255, 0.864);
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   padding: 40px;
@@ -178,6 +179,98 @@
     i {
       color: var(--third-color);
     }
+  }
+}
+
+.quick-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.btn-quick-round {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px 10px;
+  background: white;
+  border: 2px solid var(--second-color);
+  border-radius: 50px;
+  color: var(--fourth-color);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  min-height: 100px;
+  position: relative;
+  
+  &:hover:not(:disabled) {
+    background: var(--second-color);
+    color: white;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(185, 225, 220, 0.4);
+    
+    .avatar-placeholder i {
+      color: white;
+    }
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.avatar-container {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-bottom: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--fourth-color);
+  border-radius: 50%;
+  
+  i {
+    font-size: 1.2rem;
+    color: white;
+  }
+}
+
+.usuario-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  
+  strong {
+    font-size: 0.8rem;
+    line-height: 1;
+  }
+  
+  small {
+    font-size: 0.7rem;
+    opacity: 0.8;
+    line-height: 1;
   }
 }
 
