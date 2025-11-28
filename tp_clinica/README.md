@@ -1,197 +1,65 @@
-# 🏥 Clínica OnLine - Sistema de Gestión Médica
+# Clínica Online
+Hecha para TP de UTN Labo IV
 
-Bienvenido a **Clínica OnLine**, un sistema web moderno para gestionar citas médicas, pacientes y especialistas de forma fácil y eficiente.
+## Ingreso
+### Login
+Acceso al sistema con validación de credenciales. Cuenta con botones de acceso rápido para facilitar el ingreso de usuarios de prueba (Pacientes, Especialistas y Administradores).
 
-## 📋 ¿Qué es Clínica OnLine?
+![Login](imagenes/login.png)
 
-Es una plataforma digital que permite:
-- **Pacientes**: Agendar citas con especialistas, ver historial médico y evaluar atenciones
-- **Especialistas**: Administrar su horario, ver citas asignadas y registrar atenciones
-- **Administradores**: Gestionar usuarios, turnos y generar reportes
+## Registro
+Permite el alta de nuevos usuarios en el sistema.
+*   **Pacientes:** Requiere datos personales, obra social y dos imágenes de perfil.
+*   **Especialistas:** Requiere datos personales, especialidad(es) y una imagen de perfil. Su cuenta debe ser habilitada por un administrador.
 
----
+![Registro](imagenes/registro.png)
 
-## 🚀 Guía Rápida para Empezar
+## Home
+Pantalla principal que varía según el tipo de usuario, ofreciendo accesos directos a las funcionalidades más relevantes.
+*   **Acceso:** Todos los usuarios.
 
-### Para Pacientes
+![Home](imagenes/home_general.png)
 
-**1. Crear una Cuenta**
-- Haz clic en "Registro" desde la página de inicio
-- Selecciona "Paciente"
-- Completa tus datos (nombre, apellido, edad, DNI, obra social)
-- Sube dos fotos de perfil
-- Responde el captcha de verificación
-- Haz clic en "Registrar"
+## Mi Perfil
+Visualización y edición de datos personales.
+*   **Pacientes:** Pueden ver su historia clínica y descargarla en PDF.
 
-**2. Iniciar Sesión**
-- Ve a "Iniciar Sesión"
-- Ingresa tu email y contraseña
-- Alternativamente, usa uno de los botones de acceso rápido
+![Mi Perfil Paciente](imagenes/mi_perfil_paciente.png)
 
-**3. Agendar una Cita**
-- Desde el menú, ve a "Solicitar Turno"
-- Selecciona la especialidad que necesitas
-- Elige un especialista disponible
-- Selecciona la fecha y hora que te convenga
-- Confirma tu cita
+*   **Especialistas:** Pueden configurar sus horarios de disponibilidad ("Mis Horarios").
 
-**4. Mis Turnos**
-- Aquí verás todas tus citas
-- Puedes cancelarlas si es necesario
-- Una vez realizada la cita, podrás calificar al especialista
+![Mi Perfil Especialista](imagenes/mi_perfil_especialista.png)
 
-### Para Especialistas
+## Mis Turnos
+Gestión de citas médicas.
+*   **Pacientes:** Ver estado de turnos, cancelar, ver reseñas, completar encuestas y calificar atención. Filtros por especialidad, especialista y datos de historia clínica.
 
-**1. Crear una Cuenta**
-- Haz clic en "Registro"
-- Selecciona "Especialista"
-- Completa tus datos personales
-- Selecciona tus especialidades (puedes tener más de una)
-- Sube una foto de perfil
-- Responde el captcha de verificación
-- Haz clic en "Registrar"
+![Mis Turnos Paciente](imagenes/mis_turnos_paciente.png)
 
-**2. Esperar Aprobación**
-- Después de registrarte, tu cuenta debe ser aprobada por un administrador
-- Te enviaremos un email cuando sea aprobada
+*   **Especialistas:** Ver turnos asignados, aceptar, cancelar, rechazar, finalizar turnos y cargar historia clínica. Filtros por especialidad, paciente y datos de historia clínica.
 
-**3. Configurar tu Disponibilidad**
-- Desde "Mi Perfil", ve a "Mis Horarios"
-- Establece tus horarios de atención por especialidad
-- Guarda los cambios
+![Mis Pacientes Especialista](imagenes/mis_pacientes_especialista.png)
 
-**4. Mis Turnos**
-- Verás todas las citas agendadas para ti
-- Puedes aceptar, rechazar o finalizar turnos
-- Al finalizar, registra la atención del paciente con detalles importantes
+## Solicitar Turno
+Proceso paso a paso para agendar una nueva cita. Selección de especialidad, especialista y horario disponible.
+*   **Acceso:** Pacientes y Administradores (pueden solicitar turnos para pacientes).
 
-### Para Administradores
+![Solicitar Turno](imagenes/solicitar_turno.png)
 
-**1. Iniciar Sesión**
-- Usa las credenciales de administrador
+## Gestión de Usuarios
+Panel para administrar los usuarios del sistema. Permite habilitar/inhabilitar especialistas, crear nuevos usuarios (incluyendo administradores) y descargar la lista de usuarios en Excel.
+*   **Acceso:** Solo Administradores.
 
-**2. Gestión de Usuarios**
-- Ve a "Usuarios" en el menú
-- Aquí puedes:
-  - Ver todos los pacientes, especialistas y administradores
-  - Aprobar a los nuevos especialistas
-  - Activar o desactivar usuarios
-  - Crear nuevos usuarios
+![Gestión Usuarios](imagenes/gestion_usuarios_admin.png)
 
-**3. Gestión de Turnos**
-- Ve a "Turnos" para ver todas las citas del sistema
-- Puedes cancelar turnos si es necesario
+## Gestión de Turnos
+Vista global de todos los turnos de la clínica. Permite cancelar turnos si es necesario.
+*   **Acceso:** Solo Administradores.
 
-**4. Reportes**
-- Accede a los gráficos y estadísticas
-- Descarga reportes en Excel o PDF
+![Gestión Turnos](imagenes/gestion_turnos_admin.png)
 
----
+## Estadísticas e Informes
+Panel con gráficos y reportes sobre el funcionamiento de la clínica (Log de ingresos, turnos por especialidad, turnos por día, turnos por médico, etc.). Permite descargar informes en Excel.
+*   **Acceso:** Solo Administradores.
 
-## 🔐 Usuarios de Prueba
-
-Puedes usar estos usuarios para probar el sistema:
-
-**Pacientes:**
-- Email: `paciente@test.com` | Contraseña: `123456`
-- Email: `paciente2@test.com` | Contraseña: `123456`
-- Email: `paciente3@test.com` | Contraseña: `123456`
-
-**Especialistas:**
-- Email: `especialista@test.com` | Contraseña: `123456`
-- Email: `especialista2@test.com` | Contraseña: `123456`
-
-**Administrador:**
-- Email: `admin@clinica.com` | Contraseña: `123456`
-
----
-
-## 📱 Pantallas Principales
-
-### 1. **Inicio / Home**
-- Descripción de la clínica
-- Acceso a Login y Registro
-- Enlaces rápidos
-
-### 2. **Login**
-- Ingreso de email y contraseña
-- Acceso rápido con botones de usuarios de prueba
-- Validación de credenciales
-
-### 3. **Registro**
-- Selección del tipo de usuario (Paciente/Especialista)
-- Formulario adaptado según el tipo
-- Validación de datos
-- Verificación con captcha
-
-### 4. **Mi Perfil**
-- Ver información personal
-- Para especialistas: configurar horarios
-- Para pacientes: ver historial clínico
-
-### 5. **Mis Turnos**
-- Listar turnos del usuario
-- Filtros por especialidad o especialista
-- Acciones según el estado del turno
-
-### 6. **Solicitar Turno**
-- Seleccionar especialidad
-- Elegir especialista
-- Elegir fecha y hora disponible
-
-### 7. **Usuarios (Admin)**
-- Listado de todos los usuarios
-- Crear nuevos usuarios
-- Aprobar especialistas
-- Activar/Desactivar usuarios
-
-### 8. **Reportes (Admin)**
-- Gráficos de turnos
-- Estadísticas de especialidades
-- Análisis de uso del sistema
-
----
-
-## 🛠️ Características Principales
-
-✅ Registro de usuarios con validación completa  
-✅ Sistema de citas online  
-✅ Historial clínico digitalizado  
-✅ Gestión de especialistas con aprobación  
-✅ Reportes y estadísticas  
-✅ Seguridad con verificación de email  
-✅ Interfaz responsive para cualquier dispositivo  
-✅ Captcha para mayor seguridad  
-
----
-
-## ℹ️ Información Importante
-
-- La clínica funciona de **lunes a viernes de 8:00 a 19:00** y **sábados de 8:00 a 14:00**
-- Los turnos tienen una duración mínima de **30 minutos**
-- Los especialistas pueden tener **múltiples especialidades**
-- El sistema requiere **verificación de email** para acceder
-- Los **especialistas** requieren aprobación del administrador antes de poder acceder
-
----
-
-## 💡 Consejos Útiles
-
-- Completa tu perfil con información correcta para un mejor servicio
-- Verifica tu correo regularmente para notificaciones de turnos
-- Si eres especialista, configura tus horarios lo antes posible
-- Usa el captcha para mayor seguridad en tus datos
-
----
-
-## 🏗️ Desarrollado con
-
-- **Angular 18** - Framework web
-- **Supabase** - Base de datos y autenticación
-- **Bootstrap/CSS3** - Estilos responsivos
-- **FontAwesome** - Iconografía
-
----
-
-**Última actualización:** Noviembre 2025  
-**Versión:** 1.0.0 (Sprint 2)
+![Estadísticas](imagenes/estadisticas_admin.png)
