@@ -5,9 +5,9 @@ Este directorio debe contener las imágenes de perfil para los usuarios de acces
 ## Archivos necesarios:
 
 ### Pacientes:
-- `paciente1.jpg` - Juan Pérez (paciente@test.com)
-- `paciente2.jpg` - María García (paciente2@test.com) 
-- `paciente3.jpg` - Carlos López (paciente3@test.com)
+- `paciente1.jpg` - Lily Test (paciente@test.com)
+- `paciente2.jpg` - Leandro Test2 (paciente2@test.com) 
+- `paciente3.jpg` - Robin Test3 (paciente3@test.com)
 
 ### Especialistas:
 - `especialista1.jpg` - Dr. Ana Martínez (especialista@test.com)

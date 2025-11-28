@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase.service';
+import { CaptchaComponent } from '../captcha/captcha.component';
 import { 
   RegistroPacienteForm, 
   RegistroEspecialistaForm, 
@@ -9,15 +10,20 @@ import {
   TipoUsuario 
 } from '../../models/interfaces';
 import { Router } from '@angular/router';
+import { FormatoDniDirective } from '../../directives/formato-dni.directive';
+import { AnimacionEntradaDirective } from '../../directives/animacion-entrada.directive';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, CaptchaComponent, FormatoDniDirective, AnimacionEntradaDirective],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
 export class RegisterComponent implements OnInit {
   
+  @ViewChild('captchaPaciente') captchaPaciente!: CaptchaComponent;
+  @ViewChild('captchaEspecialista') captchaEspecialista!: CaptchaComponent;
+
   // Exponer el enum para uso en el template
   TipoUsuario = TipoUsuario;
   
@@ -28,6 +34,8 @@ export class RegisterComponent implements OnInit {
   loading = false;
   mensaje = '';
   mensajeTipo: 'success' | 'error' = 'success';
+  captchaPacienteValido = false;
+  captchaEspecialistaValido = false;
 
   // Variables para nueva especialidad
   agregandoEspecialidad = false;
@@ -108,6 +116,17 @@ export class RegisterComponent implements OnInit {
     this.imagenPerfil1 = null;
     this.imagenPerfil2 = null;
     this.imagenPerfilEspecialista = null;
+    // Resetear captchas
+    this.captchaPacienteValido = false;
+    this.captchaEspecialistaValido = false;
+  }
+
+  onCaptchaPacienteValidado(isValid: boolean) {
+    this.captchaPacienteValido = isValid;
+  }
+
+  onCaptchaEspecialistaValidado(isValid: boolean) {
+    this.captchaEspecialistaValido = isValid;
   }
 
   // Manejo de archivos
@@ -170,16 +189,24 @@ export class RegisterComponent implements OnInit {
     if (this.loading) return;
 
     let formulario: FormGroup;
+    let captchaValido: boolean;
     
     if (this.tipoUsuarioSeleccionado === TipoUsuario.PACIENTE) {
       formulario = this.formularioPaciente;
+      captchaValido = this.captchaPacienteValido;
     } else {
       formulario = this.formularioEspecialista;
+      captchaValido = this.captchaEspecialistaValido;
     }
 
     if (formulario.invalid) {
       formulario.markAllAsTouched();
       this.mostrarMensaje('Por favor complete todos los campos correctamente', 'error');
+      return;
+    }
+
+    if (!captchaValido) {
+      this.mostrarMensaje('Por favor verifica el captcha para continuar', 'error');
       return;
     }
 

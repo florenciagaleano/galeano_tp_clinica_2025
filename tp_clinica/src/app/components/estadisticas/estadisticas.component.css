@@ -1,0 +1,265 @@
+.estadisticas-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 30px;
+  background: linear-gradient(135deg, var(--second-color), var(--first-color));
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+  color: var(--fourth-color);
+  margin: 0 0 10px 0;
+  font-size: 2.5rem;
+}
+
+.header p {
+  color: var(--fourth-color);
+  margin: 0;
+  opacity: 0.8;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--fourth-color);
+  font-size: 1.2rem;
+}
+
+.informe-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.informe-card.media {
+  flex: 1;
+}
+
+.informe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--second-color);
+}
+
+.informe-header h2 {
+  color: var(--fourth-color);
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.btn-download {
+  background: var(--third-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.btn-download:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(243, 129, 129, 0.3);
+}
+
+/* Tabla de logs */
+.tabla-container {
+  overflow-x: auto;
+}
+
+.tabla-logs {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-logs thead {
+  background: var(--second-color);
+}
+
+.tabla-logs th {
+  padding: 12px;
+  text-align: left;
+  color: var(--fourth-color);
+  font-weight: 600;
+}
+
+.tabla-logs td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.tabla-logs tbody tr:hover {
+  background: var(--first-color);
+}
+
+.badge-tipo {
+  background: var(--fourth-color);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+/* Gráficos de barras */
+.grafico-barras {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.barra-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.barra-label {
+  min-width: 200px;
+  font-weight: 500;
+  color: var(--fourth-color);
+}
+
+.barra-contenedor {
+  flex: 1;
+  height: 35px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.barra-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--third-color), var(--second-color));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  transition: width 0.5s ease;
+  min-width: 50px;
+}
+
+.barra-fill.barra-azul {
+  background: linear-gradient(90deg, #17a2b8, var(--second-color));
+}
+
+.barra-valor {
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Filtros de fecha */
+.filtros-fecha {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: var(--first-color);
+  border-radius: 8px;
+}
+
+.campo-fecha {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.campo-fecha label {
+  font-weight: 500;
+  color: var(--fourth-color);
+  font-size: 0.9rem;
+}
+
+.campo-fecha input[type="date"] {
+  padding: 8px 12px;
+  border: 2px solid var(--second-color);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+/* Lista de médicos */
+.lista-medicos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.medico-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: var(--first-color);
+  border-radius: 8px;
+  border-left: 4px solid var(--third-color);
+}
+
+.medico-nombre {
+  font-weight: 500;
+  color: var(--fourth-color);
+}
+
+.medico-cantidad {
+  background: var(--third-color);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.medico-cantidad.medico-realizado {
+  background: #28a745;
+}
+
+/* Fila de informes */
+.informe-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-bottom: 25px;
+}
+
+/* Sin datos */
+.sin-datos {
+  text-align: center;
+  padding: 30px;
+  color: #999;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .informe-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .barra-label {
+    min-width: 120px;
+    font-size: 0.9rem;
+  }
+  
+  .informe-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .filtros-fecha {
+    flex-direction: column;
+  }
+}

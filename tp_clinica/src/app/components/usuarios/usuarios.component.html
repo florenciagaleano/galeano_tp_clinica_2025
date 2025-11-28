@@ -36,6 +36,10 @@
         <i class="fas fa-user-shield"></i>
         Nuevo Administrador
       </button>
+      <button type="button" class="btn btn-success" (click)="exportarExcel()">
+        <i class="fas fa-file-excel"></i>
+        Exportar Excel
+      </button>
     </div>
 
     <!-- Filtros -->
@@ -170,6 +174,16 @@
             <!-- Acciones -->
             <td class="columna-acciones">
               <div class="acciones">
+                <!-- Ver Historia Clínica (solo para Pacientes) -->
+                <button 
+                  *ngIf="usuario.tipo === TipoUsuario.PACIENTE"
+                  type="button" 
+                  class="btn btn-sm btn-info"
+                  (click)="verHistoriaClinica(usuario)"
+                  title="Ver historia clínica">
+                  <i class="fas fa-file-medical"></i>
+                </button>
+
                 <!-- Activar/Desactivar -->
                 <button 
                   type="button" 
@@ -400,17 +414,67 @@
         </div>
       </div>
 
+      <!-- Captcha para crear nuevo usuario -->
+      <app-captcha 
+        #captchaFormulario
+        [enabled]="true"
+        (captchaValidated)="onCaptchaValidado($event)">
+      </app-captcha>
+
       <!-- Botones -->
       <div class="botones-formulario">
         <button type="button" class="btn btn-light" (click)="cancelarFormulario()">
           <i class="fas fa-times"></i>
           Cancelar
         </button>
-        <button type="submit" class="btn btn-primary" [disabled]="formularioNuevoUsuario.invalid || loading">
+        <button type="submit" class="btn btn-primary" [disabled]="formularioNuevoUsuario.invalid || loading || !captchaValido">
           <i class="fas fa-save"></i>
           {{ loading ? 'Guardando...' : 'Guardar Usuario' }}
         </button>
       </div>
     </form>
+  </div>
+
+  <!-- Modal Historia Clínica -->
+  <div class="modal-overlay" *ngIf="mostrarHistoriaClinica" (click)="cerrarHistoriaClinica()">
+    <div class="modal-contenido" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fas fa-notes-medical"></i> Historia Clínica</h3>
+        <button class="btn-cerrar" (click)="cerrarHistoriaClinica()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="paciente-info-modal" *ngIf="pacienteSeleccionado">
+          <h4>{{ pacienteSeleccionado.nombre }} {{ pacienteSeleccionado.apellido }}</h4>
+          <p>DNI: {{ pacienteSeleccionado.dni }}</p>
+        </div>
+
+        <div class="historia-lista">
+          <div class="historia-item" *ngFor="let historia of historiaClinica">
+            <div class="historia-fecha">
+              <i class="fas fa-calendar-alt"></i> {{ historia.fecha }}
+            </div>
+            <div class="historia-datos">
+              <div class="dato"><strong>Altura:</strong> {{ historia.altura }} cm</div>
+              <div class="dato"><strong>Peso:</strong> {{ historia.peso }} kg</div>
+              <div class="dato"><strong>Temperatura:</strong> {{ historia.temperatura }}°C</div>
+              <div class="dato"><strong>Presión:</strong> {{ historia.presion }}</div>
+            </div>
+            <div class="datos-dinamicos" *ngIf="historia.datos_dinamicos?.length">
+              <h5>Datos Adicionales:</h5>
+              <div class="dato" *ngFor="let dato of historia.datos_dinamicos">
+                <strong>{{ dato.clave }}:</strong> {{ dato.valor }}
+              </div>
+            </div>
+          </div>
+
+          <div class="sin-historia" *ngIf="historiaClinica.length === 0">
+            <i class="fas fa-inbox"></i>
+            <p>No hay historia clínica registrada</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

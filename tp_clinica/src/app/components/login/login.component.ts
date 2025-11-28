@@ -52,7 +52,7 @@ export class LoginComponent implements OnInit {
       email: 'especialista2@test.com', 
       password: '123456', 
       tipo: 'Especialista',
-      nombre: 'Dr. Luis Rodríguez',
+      nombre: 'Dr. Derek Sheperd',
       imagen_perfil: 'https://jufqrifecxbmqpauujbk.supabase.co/storage/v1/object/public/profiles/especialistas/patrick_dempsey_greys_anatomy_dead.webp'
     },
     { 
@@ -96,6 +96,10 @@ export class LoginComponent implements OnInit {
 
       if (resultado.success) {
         this.mostrarMensaje('Inicio de sesión exitoso', 'success');
+        
+        // Registrar log de ingreso
+        await this.supabaseService.registrarLogIngreso(email);
+        
         // Redirigir según el tipo de usuario
         await this.redirigirSegunTipoUsuario(email);
       } else {
@@ -111,12 +115,7 @@ export class LoginComponent implements OnInit {
   }
 
   async redirigirSegunTipoUsuario(mail: string) {
-    // Aquí determinarías el tipo de usuario y redirigir
-    // Por ahora, redirigir a una página de dashboard general
-    if(mail.includes('admin')) {
-      this.router.navigate(['/usuarios']);
-      return;
-    }
+    // Redirigir siempre al home para que vea su panel
     this.router.navigate(['/']);
   }
 

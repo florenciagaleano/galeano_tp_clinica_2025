@@ -1,0 +1,36 @@
+<div class="captcha-container">
+  <div class="captcha-box" *ngIf="enabled">
+    <div class="captcha-header">
+      <i class="fas fa-shield-alt"></i>
+      <span>Verificación de seguridad</span>
+    </div>
+
+    <div class="captcha-loading" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Cargando verificación...</p>
+    </div>
+
+    <!-- El contenedor debe existir siempre para que grecaptcha.render pueda usarlo -->
+    <div id="recaptcha-container" class="recaptcha-wrapper" [style.display]="isLoading ? 'none' : 'block'"></div>
+
+    <div class="captcha-feedback feedback-success" *ngIf="isVerified">
+      <i class="fas fa-check-circle"></i>
+      ¡Verificación exitosa!
+    </div>
+
+    <div class="captcha-feedback feedback-error" *ngIf="errorMessage">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+
+    <button class="btn-reset" *ngIf="isVerified" (click)="resetCaptcha()">
+      <i class="fas fa-redo"></i>
+      Verificar nuevamente
+    </button>
+  </div>
+
+  <div class="captcha-disabled" *ngIf="!enabled">
+    <i class="fas fa-info-circle"></i>
+    <span>Verificación de captcha deshabilitada</span>
+  </div>
+</div>

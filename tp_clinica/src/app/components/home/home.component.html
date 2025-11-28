@@ -8,14 +8,24 @@
         <span>Clínica OnLine</span>
       </div>
       <div class="nav-buttons">
-        <button class="btn-outline" (click)="irALogin()">
-          <i class="fas fa-sign-in-alt"></i>
-          Iniciar Sesión
-        </button>
-        <button class="btn-outline" (click)="irARegistro()">
-          <i class="fas fa-sign-in-alt"></i>
-          Registrarse
-        </button>
+        <ng-container *ngIf="!usuarioLogueado">
+          <button class="btn-outline" (click)="irALogin()">
+            <i class="fas fa-sign-in-alt"></i>
+            Iniciar Sesión
+          </button>
+          <button class="btn-outline" (click)="irARegistro()">
+            <i class="fas fa-user-plus"></i>
+            Registrarse
+          </button>
+        </ng-container>
+        
+        <ng-container *ngIf="usuarioLogueado">
+          <span class="welcome-text">Bienvenido, {{ nombreUsuario }}</span>
+          <button class="btn-outline" (click)="cerrarSesion()">
+            <i class="fas fa-sign-out-alt"></i>
+            Cerrar Sesión
+          </button>
+        </ng-container>
       </div>
     </nav>
   </header>
@@ -28,7 +38,8 @@
         <p>Sistema integral de gestión médica especializado en salud. Contamos con 6 consultorios, 
            dos laboratorios físicos y profesionales de diversas especialidades.</p>
         
-        <div class="hero-buttons">
+        <!-- Botones para usuario NO logueado -->
+        <div class="hero-buttons" *ngIf="!usuarioLogueado">
           <button class="btn-hero btn-primary" (click)="irARegistro()">
             <i class="fas fa-user-plus"></i>
             Registrarse como Paciente
@@ -36,6 +47,61 @@
           <button class="btn-hero btn-secondary" (click)="irALogin()">
             <i class="fas fa-calendar-check"></i>
             Acceder al Sistema
+          </button>
+        </div>
+
+        <!-- Botones para PACIENTE -->
+        <div class="hero-buttons" *ngIf="usuarioLogueado && tipoUsuario === TipoUsuario.PACIENTE">
+          <h2>Panel de Paciente</h2>
+          <button class="btn-hero btn-secondary" (click)="irAMisTurnos()">
+            <i class="fas fa-calendar-alt"></i>
+            Mis Turnos
+          </button>
+          <button class="btn-hero btn-secondary" (click)="irASolicitarTurno()">
+            <i class="fas fa-calendar-plus"></i>
+            Solicitar Turno
+          </button>
+          <button class="btn-hero btn-secondary" (click)="irAMiPerfil()">
+            <i class="fas fa-user"></i>
+            Mi Perfil
+          </button>
+        </div>
+
+        <!-- Botones para ESPECIALISTA -->
+        <div class="hero-buttons" *ngIf="usuarioLogueado && tipoUsuario === TipoUsuario.ESPECIALISTA">
+          <h2>Panel de Especialista</h2>
+          <button class="btn-hero btn-secondary" (click)="irAMisTurnos()">
+            <i class="fas fa-calendar-check"></i>
+            Mis Turnos
+          </button>
+          <button class="btn-hero btn-secondary" (click)="irAPacientes()">
+            <i class="fas fa-users"></i>
+            Mis Pacientes
+          </button>
+          <button class="btn-hero btn-secondary" (click)="irAMiPerfil()">
+            <i class="fas fa-user-md"></i>
+            Mi Perfil
+          </button>
+        </div>
+
+        <!-- Botones para ADMINISTRADOR -->
+        <div class="hero-buttons" *ngIf="usuarioLogueado && tipoUsuario === TipoUsuario.ADMIN">
+          <h2>Panel de Administrador</h2>
+          <button class="btn-hero btn-secondary" (click)="irAUsuarios()">
+            <i class="fas fa-users-cog"></i>
+            Gestión de Usuarios
+          </button>
+          <button class="btn-hero btn-secondary" (click)="irATurnos()">
+            <i class="fas fa-calendar"></i>
+            Gestión de Turnos
+          </button>
+          <button class="btn-hero btn-secondary" (click)="irASolicitarTurno()">
+            <i class="fas fa-calendar-plus"></i>
+            Solicitar Turno
+          </button>
+          <button class="btn-hero btn-secondary" (click)="irAEstadisticas()">
+            <i class="fas fa-chart-bar"></i>
+            Estadísticas
           </button>
         </div>
       </div>

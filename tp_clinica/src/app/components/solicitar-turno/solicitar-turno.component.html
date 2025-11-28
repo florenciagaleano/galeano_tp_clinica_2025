@@ -1,0 +1,194 @@
+<div class="solicitar-turno-container">
+  <!-- Header -->
+  <div class="header">
+    <button class="btn-volver" (click)="cancelar()" *ngIf="pasoActual === 1">
+      <i class="fas fa-arrow-left"></i>
+      Volver
+    </button>
+    <button class="btn-volver" (click)="volverPaso()" *ngIf="pasoActual > 1">
+      <i class="fas fa-arrow-left"></i>
+      Atrás
+    </button>
+    <h2>Solicitar Turno</h2>
+  </div>
+
+  <!-- Indicador de pasos -->
+  <div class="pasos-indicador">
+    <div class="paso" [class.activo]="pasoActual >= 1" [class.completado]="pasoActual > 1">
+      <div class="paso-numero">1</div>
+      <div class="paso-texto">Especialista</div>
+    </div>
+    <div class="paso-linea" [class.completado]="pasoActual > 1"></div>
+    <div class="paso" [class.activo]="pasoActual >= 2" [class.completado]="pasoActual > 2">
+      <div class="paso-numero">2</div>
+      <div class="paso-texto">Especialidad</div>
+    </div>
+    <div class="paso-linea" [class.completado]="pasoActual > 2"></div>
+    <div class="paso" [class.activo]="pasoActual >= 3" [class.completado]="pasoActual > 3">
+      <div class="paso-numero">3</div>
+      <div class="paso-texto">Fecha</div>
+    </div>
+    <div class="paso-linea" [class.completado]="pasoActual > 3"></div>
+    <div class="paso" [class.activo]="pasoActual >= 4">
+      <div class="paso-numero">4</div>
+      <div class="paso-texto">Hora</div>
+    </div>
+  </div>
+
+  <!-- Selección de paciente (solo para admin) -->
+  <div class="seleccion-paciente" *ngIf="esAdmin && pasoActual === 1">
+    <h3>Seleccionar Paciente</h3>
+    <div class="pacientes-grid">
+      <div 
+        class="paciente-card" 
+        *ngFor="let paciente of pacientes"
+        [class.seleccionado]="pacienteSeleccionado?.id === paciente.id"
+        (click)="seleccionarPaciente(paciente)">
+        <div class="paciente-avatar">
+          <img [src]="paciente.imagen_perfil_1" *ngIf="paciente.imagen_perfil_1" alt="Paciente">
+          <i class="fas fa-user" *ngIf="!paciente.imagen_perfil_1"></i>
+        </div>
+        <div class="paciente-info">
+          <h4>{{ paciente.nombre }} {{ paciente.apellido }}</h4>
+          <p>{{ paciente.dni }}</p>
+          <p class="obra-social">{{ paciente.obra_social }}</p>
+        </div>
+        <i class="fas fa-check-circle icono-seleccionado" *ngIf="pacienteSeleccionado?.id === paciente.id"></i>
+      </div>
+    </div>
+    <p class="advertencia" *ngIf="pacientes.length === 0">No hay pacientes registrados</p>
+  </div>
+
+  <!-- Paso 1: Selección de Especialista -->
+  <div class="paso-contenido" *ngIf="pasoActual === 1 && (!esAdmin || pacienteSeleccionado)">
+    <h3>Seleccionar Especialista</h3>
+    <div class="especialistas-grid-redondo">
+      <div 
+        class="especialista-card-redondo" 
+        *ngFor="let especialista of especialistas"
+        (click)="seleccionarEspecialista(especialista)">
+        <div class="especialista-avatar-grande">
+          <img [src]="especialista.imagen_perfil" *ngIf="especialista.imagen_perfil" alt="Especialista">
+          <i class="fas fa-user-md" *ngIf="!especialista.imagen_perfil"></i>
+        </div>
+        <h4>Dr./Dra. {{ especialista.nombre }} {{ especialista.apellido }}</h4>
+        <div class="especialidades-tags">
+          <span class="tag-pequeno" *ngFor="let esp of especialista.especialidades">
+            {{ esp.nombre }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <p class="advertencia" *ngIf="especialistas.length === 0 && !cargando">
+      No hay especialistas disponibles
+    </p>
+  </div>
+
+  <!-- Paso 2: Selección de Especialidad -->
+  <div class="paso-contenido" *ngIf="pasoActual === 2">
+    <h3>Seleccionar Especialidad</h3>
+    <p class="especialista-seleccionado-info">
+      <strong>Especialista:</strong> Dr./Dra. {{ especialistaSeleccionado?.nombre }} {{ especialistaSeleccionado?.apellido }}
+    </p>
+    
+    <div class="especialidades-grid-cuadrado">
+      <div 
+        class="especialidad-card-cuadrado" 
+        *ngFor="let especialidad of especialidadesDelEspecialista"
+        (click)="seleccionarEspecialidad(especialidad)">
+        <div class="especialidad-imagen">
+          <img 
+            [src]="getImagenEspecialidad(especialidad.nombre)" 
+            [alt]="especialidad.nombre"
+            (error)="$any($event.target).src = getImagenEspecialidad('default')">
+        </div>
+        <h4>{{ especialidad.nombre }}</h4>
+      </div>
+    </div>
+
+    <p class="advertencia" *ngIf="especialidadesDelEspecialista.length === 0 && !cargando">
+      Este especialista no tiene especialidades asignadas
+    </p>
+  </div>
+
+  <!-- Paso 3: Selección de Fecha -->
+  <div class="paso-contenido" *ngIf="pasoActual === 3">
+    <h3>Seleccionar Fecha</h3>
+    <div class="resumen-seleccion">
+      <p><strong>Especialista:</strong> Dr./Dra. {{ especialistaSeleccionado?.nombre }} {{ especialistaSeleccionado?.apellido }}</p>
+      <p><strong>Especialidad:</strong> {{ especialidadSeleccionada?.nombre }}</p>
+      <p *ngIf="esAdmin && pacienteSeleccionado">
+        <strong>Paciente:</strong> {{ pacienteSeleccionado.nombre }} {{ pacienteSeleccionado.apellido }}
+      </p>
+    </div>
+
+    <!-- Calendario de fechas -->
+    <div class="seccion-fechas">
+      <div class="fechas-grid-rectangular">
+        <button 
+          class="fecha-card-rectangular" 
+          *ngFor="let fecha of fechasDisponibles"
+          [class.seleccionada]="esFechaSeleccionada(fecha)"
+          [class.hoy]="esFechaHoy(fecha)"
+          (click)="seleccionarFecha(fecha)">
+          {{ formatearFecha(fecha) }}
+          <span class="fecha-badge-rectangular" *ngIf="esFechaHoy(fecha)">Hoy</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paso 4: Selección de Hora -->
+  <div class="paso-contenido" *ngIf="pasoActual === 4">
+    <h3>Seleccionar Hora</h3>
+    <div class="resumen-seleccion">
+      <p><strong>Especialista:</strong> Dr./Dra. {{ especialistaSeleccionado?.nombre }} {{ especialistaSeleccionado?.apellido }}</p>
+      <p><strong>Especialidad:</strong> {{ especialidadSeleccionada?.nombre }}</p>
+      <p><strong>Fecha:</strong> {{ formatearFecha(fechaSeleccionada!) }}</p>
+      <p *ngIf="esAdmin && pacienteSeleccionado">
+        <strong>Paciente:</strong> {{ pacienteSeleccionado.nombre }} {{ pacienteSeleccionado.apellido }}
+      </p>
+    </div>
+
+    <!-- Horarios disponibles -->
+    <div class="seccion-horarios">
+      <div class="horarios-grid-cuadrado" *ngIf="horariosDisponibles.length > 0">
+        <button 
+          class="horario-card-cuadrado" 
+          *ngFor="let horario of horariosDisponibles"
+          [class.seleccionado]="horaSeleccionada === horario.hora_inicio"
+          (click)="seleccionarHora(horario.hora_inicio)">
+          {{ horario.hora_inicio }}
+        </button>
+      </div>
+      <p class="advertencia" *ngIf="horariosDisponibles.length === 0 && !cargando">
+        No hay horarios disponibles para esta fecha
+      </p>
+    </div>
+
+    <!-- Botón confirmar -->
+    <div class="acciones" *ngIf="horaSeleccionada">
+      <button class="btn-confirmar" (click)="confirmarTurno()" [disabled]="cargando">
+        <i class="fas fa-check"></i>
+        {{ cargando ? 'Confirmando...' : 'Confirmar Turno' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="cargando">
+    <div class="spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  <!-- Mensajes -->
+  <div class="mensaje mensaje-error" *ngIf="mensajeError">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ mensajeError }}
+  </div>
+
+  <div class="mensaje mensaje-exito" *ngIf="mensajeExito">
+    <i class="fas fa-check-circle"></i>
+    {{ mensajeExito }}
+  </div>
+</div>

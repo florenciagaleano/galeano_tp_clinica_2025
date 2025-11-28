@@ -1,0 +1,640 @@
+<div class="mis-turnos-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>
+      <i class="fas fa-calendar-alt"></i>
+      Mis Turnos
+    </h1>
+    <p *ngIf="tipoUsuario === TipoUsuario.PACIENTE">Gestiona tus citas médicas</p>
+    <p *ngIf="tipoUsuario === TipoUsuario.ESPECIALISTA">Gestiona las citas de tus pacientes</p>
+  </div>
+
+  <!-- Mensajes -->
+  <div *ngIf="mensaje" class="mensaje" [class.success]="mensajeTipo === 'success'" [class.error]="mensajeTipo === 'error'">
+    <i class="fas" [class.fa-check-circle]="mensajeTipo === 'success'" [class.fa-exclamation-circle]="mensajeTipo === 'error'"></i>
+    {{ mensaje }}
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i>
+    Cargando turnos...
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros-container" *ngIf="!loading">
+    
+    <!-- Buscador General -->
+    <div class="filtro-grupo" style="margin-bottom: 20px;">
+      <label for="filtroTexto">
+        <i class="fas fa-search"></i>
+        Buscar en cualquier campo
+      </label>
+      <input 
+        type="text" 
+        id="filtroTexto" 
+        [(ngModel)]="filtroTexto" 
+        (ngModelChange)="filtrarTurnos()" 
+        class="form-control" 
+        placeholder="Buscar por especialista, especialidad, historia clínica, datos dinámicos..."
+        style="width: 100%;">
+    </div>
+
+    <!-- Filtros para Pacientes -->
+    <div class="filtros-separados" *ngIf="tipoUsuario === TipoUsuario.PACIENTE">
+      <div class="filtro-grupo">
+        <label for="filtroEspecialidad">
+          <i class="fas fa-stethoscope"></i>
+          Filtrar por Especialidad
+        </label>
+        <select 
+          id="filtroEspecialidad"
+          [(ngModel)]="filtroEspecialidad"
+          (ngModelChange)="filtrarTurnos()"
+          class="form-control">
+          <option value="">Todas las especialidades</option>
+          <option *ngFor="let especialidad of especialidadesDisponibles" [value]="especialidad">
+            {{ especialidad }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filtro-grupo">
+        <label for="filtroEspecialista">
+          <i class="fas fa-user-md"></i>
+          Filtrar por Especialista
+        </label>
+        <select 
+          id="filtroEspecialista"
+          [(ngModel)]="filtroEspecialista"
+          (ngModelChange)="filtrarTurnos()"
+          class="form-control">
+          <option value="">Todos los especialistas</option>
+          <option *ngFor="let especialista of especialistasDisponibles" [value]="especialista">
+            Dr./Dra. {{ especialista }}
+          </option>
+        </select>
+      </div>
+
+      <button 
+        class="btn-limpiar-filtros" 
+        (click)="limpiarFiltros()"
+        *ngIf="filtroEspecialidad || filtroEspecialista || filtroTexto">
+        <i class="fas fa-times-circle"></i>
+        Limpiar filtros
+      </button>
+    </div>
+
+    <!-- Filtros para Especialistas -->
+    <div class="filtros-separados" *ngIf="tipoUsuario === TipoUsuario.ESPECIALISTA">
+      <div class="filtro-grupo">
+        <label for="filtroEspecialidad">
+          <i class="fas fa-stethoscope"></i>
+          Filtrar por Especialidad
+        </label>
+        <select 
+          id="filtroEspecialidad"
+          [(ngModel)]="filtroEspecialidad"
+          (ngModelChange)="filtrarTurnos()"
+          class="form-control">
+          <option value="">Todas las especialidades</option>
+          <option *ngFor="let especialidad of especialidadesDisponibles" [value]="especialidad">
+            {{ especialidad }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filtro-grupo">
+        <label for="filtroPaciente">
+          <i class="fas fa-user"></i>
+          Filtrar por Paciente
+        </label>
+        <select 
+          id="filtroPaciente"
+          [(ngModel)]="filtroEspecialista"
+          (ngModelChange)="filtrarTurnos()"
+          class="form-control">
+          <option value="">Todos los pacientes</option>
+          <option *ngFor="let paciente of especialistasDisponibles" [value]="paciente">
+            {{ paciente }}
+          </option>
+        </select>
+      </div>
+
+      <button 
+        class="btn-limpiar-filtros" 
+        (click)="limpiarFiltros()"
+        *ngIf="filtroEspecialidad || filtroEspecialista || filtroTexto">
+        <i class="fas fa-times-circle"></i>
+        Limpiar filtros
+      </button>
+    </div>
+
+  <!-- Lista de Turnos -->
+  <div class="turnos-lista" *ngIf="!loading">
+    <div *ngIf="turnosFiltrados.length === 0" class="sin-turnos">
+      <i class="fas fa-calendar-times"></i>
+      <p>No tienes turnos {{ filtroTexto ? 'que coincidan con tu búsqueda' : 'registrados' }}</p>
+    </div>
+
+    <div *ngFor="let turno of turnosFiltrados" class="turno-card" [appHighlightTurno]="turno.estado">
+      <!-- Información principal del turno -->
+      <div class="turno-info">
+        <div class="turno-header">
+          <div class="turno-fecha">
+            <i class="fas fa-calendar"></i>
+            <span>{{ turno.fecha | date:'dd/MM/yyyy' }}</span>
+            <i class="fas fa-clock"></i>
+            <span>{{ turno.hora }}</span>
+          </div>
+          <div class="turno-estado">
+            <span class="badge" [ngClass]="getEstadoBadgeClass(turno.estado)">
+              {{ turno.estado | estadoTurno }}
+            </span>
+          </div>
+        </div>
+
+        <div class="turno-detalles">
+          <div class="detalle-item">
+            <strong>Especialidad:</strong>
+            <span>{{ turno.especialidad?.nombre }}</span>
+          </div>
+
+          <div class="detalle-item" *ngIf="tipoUsuario === TipoUsuario.PACIENTE">
+            <strong>Especialista:</strong>
+            <span>Dr./Dra. {{ turno.especialista?.nombre }} {{ turno.especialista?.apellido }}</span>
+          </div>
+
+          <div class="detalle-item" *ngIf="tipoUsuario === TipoUsuario.ESPECIALISTA">
+            <strong>Paciente:</strong>
+            <span>{{ turno.paciente?.nombre }} {{ turno.paciente?.apellido }}</span>
+          </div>
+
+          <div class="detalle-item">
+            <strong>Duración:</strong>
+            <span>{{ turno.duracion_minutos || 30 }} minutos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones del turno -->
+      <div class="turno-acciones">
+        <!-- Acciones para PACIENTES -->
+        <ng-container *ngIf="tipoUsuario === TipoUsuario.PACIENTE">
+          <button 
+            *ngIf="puedeRealizarAccion(turno, 'cancelar')"
+            class="btn btn-sm btn-danger"
+            (click)="abrirModalCancelar(turno)"
+            title="Cancelar turno">
+            <i class="fas fa-times"></i>
+            Cancelar
+          </button>
+
+          <button 
+            *ngIf="puedeRealizarAccion(turno, 'ver_resena')"
+            class="btn btn-sm btn-info"
+            (click)="abrirModalResena(turno)"
+            title="Ver reseña del especialista">
+            <i class="fas fa-notes-medical"></i>
+            Ver Reseña
+          </button>
+
+          <button 
+            *ngIf="puedeRealizarAccion(turno, 'calificar')"
+            class="btn btn-sm btn-warning"
+            (click)="abrirModalCalificar(turno)"
+            title="Calificar atención">
+            <i class="fas fa-star"></i>
+            Calificar
+          </button>
+
+          <button 
+            *ngIf="puedeRealizarAccion(turno, 'encuesta')"
+            class="btn btn-sm btn-info"
+            (click)="abrirModalEncuesta(turno)"
+            title="Completar encuesta">
+            <i class="fas fa-clipboard-check"></i>
+            Encuesta
+          </button>
+
+          <div *ngIf="turno.calificacion" class="calificacion-display">
+            <i class="fas fa-star"></i>
+            <span>{{ turno.calificacion }}/5</span>
+          </div>
+        </ng-container>
+
+        <!-- Acciones para ESPECIALISTAS -->
+        <ng-container *ngIf="tipoUsuario === TipoUsuario.ESPECIALISTA">
+          <button 
+            *ngIf="puedeRealizarAccion(turno, 'aceptar')"
+            class="btn btn-sm btn-success"
+            (click)="aceptarTurno(turno)"
+            title="Aceptar turno">
+            <i class="fas fa-check"></i>
+            Aceptar
+          </button>
+
+          <button 
+            *ngIf="puedeRealizarAccion(turno, 'rechazar')"
+            class="btn btn-sm btn-danger"
+            (click)="abrirModalRechazar(turno)"
+            title="Rechazar turno">
+            <i class="fas fa-times"></i>
+            Rechazar
+          </button>
+
+          <button 
+            *ngIf="puedeRealizarAccion(turno, 'cancelar')"
+            class="btn btn-sm btn-warning"
+            (click)="abrirModalCancelar(turno)"
+            title="Cancelar turno">
+            <i class="fas fa-ban"></i>
+            Cancelar
+          </button>
+
+          <button 
+            *ngIf="puedeRealizarAccion(turno, 'finalizar')"
+            class="btn btn-sm btn-primary"
+            (click)="abrirModalFinalizar(turno)"
+            title="Finalizar turno" style="background-color: rgb(134, 185, 134);">
+            <i class="fas fa-check-circle"></i>
+            Finalizar
+          </button>
+
+          <button 
+            *ngIf="puedeRealizarAccion(turno, 'ver_resena')"
+            class="btn btn-sm btn-info"
+            (click)="abrirModalResena(turno)"
+            title="Ver reseña">
+            <i class="fas fa-eye"></i>
+            Ver Reseña
+          </button>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALES -->
+
+<!-- Modal Cancelar Turno -->
+<div class="modal-overlay" *ngIf="mostrandoModalCancelar" (click)="cerrarModales()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Cancelar Turno</h3>
+      <button class="btn-close" (click)="cerrarModales()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>¿Estás seguro de que deseas cancelar este turno?</p>
+      <div class="form-group">
+        <label>Motivo de cancelación *</label>
+        <textarea 
+          [(ngModel)]="motivoCancelacion"
+          class="form-control"
+          rows="4"
+          placeholder="Ingresa el motivo de la cancelación..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-light" (click)="cerrarModales()">Cancelar</button>
+      <button class="btn btn-danger" (click)="cancelarTurno()" [disabled]="!motivoCancelacion.trim()">
+        Confirmar Cancelación
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Rechazar Turno -->
+<div class="modal-overlay" *ngIf="mostrandoModalRechazar" (click)="cerrarModales()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Rechazar Turno</h3>
+      <button class="btn-close" (click)="cerrarModales()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>¿Por qué deseas rechazar este turno?</p>
+      <div class="form-group">
+        <label>Motivo de rechazo *</label>
+        <textarea 
+          [(ngModel)]="motivoRechazo"
+          class="form-control"
+          rows="4"
+          placeholder="Ingresa el motivo del rechazo..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-light" (click)="cerrarModales()">Cancelar</button>
+      <button class="btn btn-danger" (click)="rechazarTurno()" [disabled]="!motivoRechazo.trim()">
+        Confirmar Rechazo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Finalizar Turno -->
+<div class="modal-overlay" *ngIf="mostrandoModalFinalizar" (click)="cerrarModales()">
+  <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Finalizar Turno - Historia Clínica</h3>
+      <button class="btn-close" (click)="cerrarModales()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Completa los datos de la consulta y la historia clínica del paciente</p>
+      
+      <!-- Reseña -->
+      <div class="form-group">
+        <label>Reseña / Diagnóstico *</label>
+        <textarea 
+          [(ngModel)]="resenaConsulta"
+          class="form-control"
+          rows="4"
+          placeholder="Describe la consulta, diagnóstico y tratamiento indicado..."></textarea>
+      </div>
+
+      <!-- Datos Fijos de Historia Clínica -->
+      <div class="historia-section">
+        <h4><i class="fas fa-notes-medical"></i> Datos Vitales</h4>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Altura (cm) *</label>
+            <input 
+              type="number" 
+              [(ngModel)]="altura"
+              class="form-control"
+              placeholder="170"
+              min="0"
+              max="250">
+          </div>
+          <div class="form-group">
+            <label>Peso (kg) *</label>
+            <input 
+              type="number" 
+              [(ngModel)]="peso"
+              class="form-control"
+              placeholder="70"
+              min="0"
+              max="300"
+              step="0.1">
+          </div>
+          <div class="form-group">
+            <label>Temperatura (°C) *</label>
+            <input 
+              type="number" 
+              [(ngModel)]="temperatura"
+              class="form-control"
+              placeholder="36.5"
+              min="30"
+              max="45"
+              step="0.1">
+          </div>
+          <div class="form-group">
+            <label>Presión (mmHg) *</label>
+            <input 
+              type="text" 
+              [(ngModel)]="presion"
+              class="form-control"
+              placeholder="120/80">
+          </div>
+        </div>
+      </div>
+
+      <!-- Datos Dinámicos -->
+      <div class="historia-section">
+        <h4><i class="fas fa-list"></i> Datos Adicionales (Opcional - Máximo 3)</h4>
+        <div class="datos-dinamicos">
+          <div class="dato-dinamico" *ngFor="let dato of datosDinamicos; let i = index">
+            <div class="form-group">
+              <label>Campo {{ i + 1 }}</label>
+              <input 
+                type="text" 
+                [(ngModel)]="dato.clave"
+                class="form-control"
+                placeholder="Ej: Caries, Alergias, etc.">
+            </div>
+            <div class="form-group">
+              <label>Valor</label>
+              <input 
+                type="text" 
+                [(ngModel)]="dato.valor"
+                class="form-control"
+                placeholder="Ej: 2, Penicilina, etc.">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-light" (click)="cerrarModales()">Cancelar</button>
+      <button 
+        class="btn btn-primary" 
+        (click)="finalizarTurno()" 
+        [disabled]="!resenaConsulta.trim() || !altura || !peso || !temperatura || !presion">
+        Finalizar Turno
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Calificar Atención -->
+<div class="modal-overlay" *ngIf="mostrandoModalCalificar" (click)="cerrarModales()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Calificar Atención</h3>
+      <button class="btn-close" (click)="cerrarModales()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>¿Cómo fue tu experiencia con el especialista?</p>
+      <div class="form-group">
+        <label>Calificación *</label>
+        <div class="calificacion-estrellas">
+          <i 
+            *ngFor="let i of [1,2,3,4,5]"
+            class="fas fa-star"
+            [class.selected]="calificacion && i <= calificacion"
+            (click)="calificacion = i"></i>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Comentario</label>
+        <textarea 
+          [(ngModel)]="comentarioCalificacion"
+          class="form-control"
+          rows="4"
+          placeholder="Deja un comentario sobre la atención recibida (opcional)..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-light" (click)="cerrarModales()">Cancelar</button>
+      <button class="btn btn-primary" (click)="calificarAtencion()" [disabled]="!calificacion">
+        Enviar Calificación
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ver Reseña -->
+<div class="modal-overlay" *ngIf="mostrandoModalResena" (click)="cerrarModales()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Reseña de la Consulta</h3>
+      <button class="btn-close" (click)="cerrarModales()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="resena-content">
+        <p>{{ turnoSeleccionado?.resena }}</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="cerrarModales()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Completar Encuesta -->
+<div class="modal-overlay" *ngIf="mostrandoModalEncuesta" (click)="cerrarModales()">
+  <div class="modal-content modal-encuesta" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-clipboard-check"></i> Encuesta de Satisfacción</h3>
+      <button class="btn-close" (click)="cerrarModales()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- 1. Radio buttons -->
+      <div class="form-group">
+        <label><i class="fas fa-thumbs-up"></i> ¿Recomendarías nuestra clínica? *</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input 
+              type="radio" 
+              name="recomendaria" 
+              value="si"
+              [(ngModel)]="encuesta.recomendaria">
+            <span>Sí, definitivamente</span>
+          </label>
+          <label class="radio-option">
+            <input 
+              type="radio" 
+              name="recomendaria" 
+              value="tal-vez"
+              [(ngModel)]="encuesta.recomendaria">
+            <span>Tal vez</span>
+          </label>
+          <label class="radio-option">
+            <input 
+              type="radio" 
+              name="recomendaria" 
+              value="no"
+              [(ngModel)]="encuesta.recomendaria">
+            <span>No</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 4. Radio buttons - Tiempo de espera -->
+      <div class="form-group">
+        <label><i class="fas fa-clock"></i> ¿Cómo fue el tiempo de espera? *</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input 
+              type="radio" 
+              name="tiempoEspera" 
+              value="excelente"
+              [(ngModel)]="encuesta.tiempoEspera">
+            <span>Excelente (menos de 10 min)</span>
+          </label>
+          <label class="radio-option">
+            <input 
+              type="radio" 
+              name="tiempoEspera" 
+              value="bueno"
+              [(ngModel)]="encuesta.tiempoEspera">
+            <span>Bueno (10-20 min)</span>
+          </label>
+          <label class="radio-option">
+            <input 
+              type="radio" 
+              name="tiempoEspera" 
+              value="regular"
+              [(ngModel)]="encuesta.tiempoEspera">
+            <span>Regular (20-30 min)</span>
+          </label>
+          <label class="radio-option">
+            <input 
+              type="radio" 
+              name="tiempoEspera" 
+              value="malo"
+              [(ngModel)]="encuesta.tiempoEspera">
+            <span>Malo (más de 30 min)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 5. Checkboxes -->
+      <div class="form-group">
+        <label><i class="fas fa-check-square"></i> ¿Qué aspectos destacarías?</label>
+        <div class="checkbox-group">
+          <label class="checkbox-option">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="encuesta.instalaciones">
+            <span>Instalaciones limpias y cómodas</span>
+          </label>
+          <label class="checkbox-option">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="encuesta.atencion">
+            <span>Atención cordial del personal</span>
+          </label>
+          <label class="checkbox-option">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="encuesta.profesionalismo">
+            <span>Profesionalismo del especialista</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 6. Control de rango -->
+      <div class="form-group">
+        <label>
+          <i class="fas fa-sliders-h"></i> 
+          Satisfacción general (0-10): <strong>{{ encuesta.satisfaccionGeneral }}</strong>
+        </label>
+        <div class="range-wrapper">
+          <div class="range-progress" [style.width.%]="encuesta.satisfaccionGeneral * 10"></div>
+          <input 
+            type="range" 
+            min="0" 
+            max="10" 
+            step="1"
+            [(ngModel)]="encuesta.satisfaccionGeneral"
+            class="form-range">
+        </div>
+        <div class="range-labels">
+          <span>0 (Muy insatisfecho)</span>
+          <span>10 (Muy satisfecho)</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="cerrarModales()">
+        Cancelar
+      </button>
+      <button class="btn btn-primary" (click)="guardarEncuesta()">
+        <i class="fas fa-save"></i>
+        Enviar Encuesta
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,164 @@
+<div class="estadisticas-container">
+  <div class="header">
+    <h1><i class="fas fa-chart-bar"></i> Estadísticas e Informes</h1>
+    <p>Panel de análisis y reportes del sistema</p>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <i class="fas fa-spinner fa-spin"></i> Cargando datos...
+  </div>
+
+  <!-- 1. LOG DE INGRESOS AL SISTEMA -->
+  <div class="informe-card">
+    <div class="informe-header">
+      <h2><i class="fas fa-sign-in-alt"></i> Log de Ingresos al Sistema</h2>
+      <button class="btn-primary" (click)="descargarLogsExcel()">
+        <i class="fas fa-file-excel"></i> Descargar Excel
+      </button>
+    </div>
+    <div class="tabla-container">
+      <table class="tabla-logs">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Tipo</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of logsIngresos">
+            <td>{{ log.usuario }}</td>
+            <td>{{ log.email }}</td>
+            <td><span class="badge badge-tipo">{{ log.tipo }}</span></td>
+            <td>{{ log.fecha }}</td>
+            <td>{{ log.hora }}</td>
+          </tr>
+          <tr *ngIf="logsIngresos.length === 0">
+            <td colspan="5" class="sin-datos">No hay registros de ingresos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 2. CANTIDAD DE TURNOS POR ESPECIALIDAD -->
+  <div class="informe-card">
+    <div class="informe-header">
+      <h2><i class="fas fa-stethoscope"></i> Turnos por Especialidad</h2>
+      <button class="btn-primary" (click)="descargarTurnosPorEspecialidadExcel()">
+        <i class="fas fa-file-excel"></i> Descargar Excel
+      </button>
+    </div>
+    
+    <!-- GRÁFICO CON CHART.JS -->
+    <div class="chart-container" *ngIf="turnosPorEspecialidad.length > 0" style="position: relative; height: 300px; margin: 20px auto; max-width: 600px;">
+      <canvas id="chartEspecialidades"></canvas>
+    </div>
+    
+    <div class="grafico-barras">
+      <div class="barra-item" *ngFor="let item of turnosPorEspecialidad">
+        <div class="barra-label">{{ item.especialidad }}</div>
+        <div class="barra-contenedor">
+          <div class="barra-fill" [style.width.%]="turnosPorEspecialidad.length > 0 ? (item.cantidad / turnosPorEspecialidad[0].cantidad * 100) : 0">
+            <span class="barra-valor">{{ item.cantidad }}</span>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="turnosPorEspecialidad.length === 0" class="sin-datos">
+        No hay datos de turnos por especialidad
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. CANTIDAD DE TURNOS POR DÍA -->
+  <div class="informe-card">
+    <div class="informe-header">
+      <h2><i class="fas fa-calendar-alt"></i> Turnos por Día (Últimos 15 días)</h2>
+      <button class="btn-primary" (click)="descargarTurnosPorDiaExcel()">
+        <i class="fas fa-file-excel"></i> Descargar Excel
+      </button>
+    </div>
+    
+    <!-- GRÁFICO CON CHART.JS -->
+    <div class="chart-container" *ngIf="turnosPorDia.length > 0" style="position: relative; height: 400px; margin: 20px 0;">
+      <canvas id="chartDias"></canvas>
+    </div>
+    
+    <div class="grafico-barras">
+      <div class="barra-item" *ngFor="let item of turnosPorDia">
+        <div class="barra-label">{{ item.fecha }}</div>
+        <div class="barra-contenedor">
+          <div class="barra-fill barra-azul" [style.width.%]="turnosPorDia.length > 0 ? (item.cantidad / turnosPorDia[0].cantidad * 100) : 0">
+            <span class="barra-valor">{{ item.cantidad }}</span>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="turnosPorDia.length === 0" class="sin-datos">
+        No hay datos de turnos por día
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 y 5. TURNOS POR MÉDICO (SOLICITADOS Y FINALIZADOS) -->
+  <div class="informe-row">
+    <!-- Turnos Solicitados -->
+    <div class="informe-card media">
+      <div class="informe-header">
+        <h2><i class="fas fa-user-md"></i> Turnos Solicitados por Médico</h2>
+        <button class="btn-download" (click)="descargarTurnosSolicitadosExcel()">
+          <i class="fas fa-file-excel"></i> Excel
+        </button>
+      </div>
+      <div class="filtros-fecha">
+        <div class="campo-fecha">
+          <label>Desde:</label>
+          <input type="date" [(ngModel)]="fechaInicio" (change)="cargarTurnosPorMedico()">
+        </div>
+        <div class="campo-fecha">
+          <label>Hasta:</label>
+          <input type="date" [(ngModel)]="fechaFin" (change)="cargarTurnosPorMedico()">
+        </div>
+      </div>
+      <div class="lista-medicos">
+        <div class="medico-item" *ngFor="let item of turnosSolicitadosPorMedico">
+          <span class="medico-nombre">{{ item.medico }}</span>
+          <span class="medico-cantidad">{{ item.cantidad }} turnos</span>
+        </div>
+        <div *ngIf="turnosSolicitadosPorMedico.length === 0" class="sin-datos">
+          No hay datos en el período seleccionado
+        </div>
+      </div>
+    </div>
+
+    <!-- Turnos Finalizados -->
+    <div class="informe-card media">
+      <div class="informe-header">
+        <h2><i class="fas fa-check-circle"></i> Turnos Finalizados por Médico</h2>
+        <button class="btn-download" (click)="descargarTurnosFinalizadosExcel()">
+          <i class="fas fa-file-excel"></i> Excel
+        </button>
+      </div>
+      <div class="filtros-fecha">
+        <div class="campo-fecha">
+          <label>Desde:</label>
+          <input type="date" [(ngModel)]="fechaInicio" (change)="cargarTurnosPorMedico()" disabled>
+        </div>
+        <div class="campo-fecha">
+          <label>Hasta:</label>
+          <input type="date" [(ngModel)]="fechaFin" (change)="cargarTurnosPorMedico()" disabled>
+        </div>
+      </div>
+      <div class="lista-medicos">
+        <div class="medico-item" *ngFor="let item of turnosFinalizadosPorMedico">
+          <span class="medico-nombre">{{ item.medico }}</span>
+          <span class="medico-cantidad medico-realizado">{{ item.cantidad }} turnos</span>
+        </div>
+        <div *ngIf="turnosFinalizadosPorMedico.length === 0" class="sin-datos">
+          No hay datos en el período seleccionado
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

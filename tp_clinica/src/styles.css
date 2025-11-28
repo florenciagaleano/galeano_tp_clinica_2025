@@ -1,1 +1,63 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* ============================================
+   ANIMACIONES DE TRANSICIÓN ENTRE COMPONENTES
+   ============================================ */
+
+/* Animación 1: Fade In con desplazamiento desde abajo */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animación 2: Slide desde la derecha */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Animación 3: Scale y fade */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Aplicar animación fadeInUp por defecto a todos los componentes de ruta */
+router-outlet ~ * {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Animación específica para tarjetas y elementos internos */
+.turno-card,
+.paciente-card,
+.usuario-card,
+.historia-item {
+  animation: slideInRight 0.4s ease-out;
+}
+
+/* Animación para modales */
+.modal-overlay {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.modal-contenido {
+  animation: scaleIn 0.3s ease-out;
+}

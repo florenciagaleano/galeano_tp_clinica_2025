@@ -1,0 +1,170 @@
+<div class="mi-perfil-container" *ngIf="!cargando" appAnimacionEntrada="fade">
+  <div class="perfil-header">
+    <div class="perfil-avatar">
+      <img [src]="imagenPerfil" [alt]="nombreCompleto">
+    </div>
+    <div class="perfil-info">
+      <h2>{{ nombreCompleto }}</h2>
+      <p class="tipo-usuario">{{ tipoUsuario }}</p>
+      <p class="email">{{ usuario?.email }}</p>
+    </div>
+  </div>
+
+  <div class="perfil-detalles">
+    <div class="detalle-card">
+      <label>DNI:</label>
+      <span>{{ usuario?.dni }}</span>
+    </div>
+    <div class="detalle-card">
+      <label>Edad:</label>
+      <span>{{ usuario?.edad | edad }}</span>
+    </div>
+    <div class="detalle-card" *ngIf="tipoUsuario === 'paciente'">
+      <label>Obra Social:</label>
+      <span>{{ usuario?.obra_social }}</span>
+    </div>
+  </div>
+
+  <!-- Sección para Pacientes: Historia Clínica -->
+  <div class="seccion-historia" *ngIf="tipoUsuario === 'paciente'">
+    <div class="seccion-header">
+      <h3><i class="fas fa-notes-medical"></i> Historia Clínica</h3>
+      <button class="btn-download" (click)="descargarHistoriaClinicaPDF()" *ngIf="historiaClinica.length > 0">
+        <i class="fas fa-file-pdf"></i> Descargar PDF
+      </button>
+    </div>
+
+    <div class="historia-lista" *ngIf="historiaClinica.length > 0">
+      <div class="historia-item" *ngFor="let historia of historiaClinica" appAnimacionEntrada="slide">
+        <div class="historia-fecha">
+          <i class="fas fa-calendar-alt"></i>
+          {{ historia.fecha | fechaTurno:'larga' }}
+        </div>
+        <div class="historia-especialista">
+          <strong>Especialista:</strong> {{ historia.especialista?.nombre }} {{ historia.especialista?.apellido }}
+        </div>
+        <div class="historia-datos">
+          <div class="dato" *ngIf="historia.altura">
+            <i class="fas fa-ruler-vertical"></i> Altura: {{ historia.altura }} cm
+          </div>
+          <div class="dato" *ngIf="historia.peso">
+            <i class="fas fa-weight"></i> Peso: {{ historia.peso }} kg
+          </div>
+          <div class="dato" *ngIf="historia.temperatura">
+            <i class="fas fa-thermometer-half"></i> Temperatura: {{ historia.temperatura }}°C
+          </div>
+          <div class="dato" *ngIf="historia.presion">
+            <i class="fas fa-heartbeat"></i> Presión: {{ historia.presion }}
+          </div>
+        </div>
+        <div class="historia-dinamicos" *ngIf="historia.datos_dinamicos && historia.datos_dinamicos.length > 0">
+          <h4>Datos Adicionales:</h4>
+          <div class="dato-dinamico" *ngFor="let dato of historia.datos_dinamicos">
+            <strong>{{ dato.clave }}:</strong> {{ dato.valor }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sin-datos" *ngIf="historiaClinica.length === 0">
+      <i class="fas fa-inbox"></i>
+      <p>No hay historia clínica registrada</p>
+    </div>
+  </div>
+
+  <!-- Sección para Especialistas: Disponibilidad Horaria -->
+  <div class="seccion-disponibilidad" *ngIf="tipoUsuario === 'especialista'">
+    <div class="seccion-header">
+      <h3><i class="fas fa-clock"></i> Mis Horarios</h3>
+      <button class="btn-agregar" (click)="abrirModalDisponibilidad()" style="background-color: black;">
+        <i class="fas fa-plus"></i> Configurar Horarios
+      </button>
+    </div>
+
+    <div class="especialidades-lista">
+      <h4>Mis Especialidades:</h4>
+      <div class="especialidad-chip" *ngFor="let esp of especialidades">
+        {{ esp.nombre }}
+      </div>
+    </div>
+
+    <div class="disponibilidad-lista" *ngIf="disponibilidadHoraria.length > 0">
+      <div class="disponibilidad-item" *ngFor="let disp of disponibilidadHoraria">
+        <h4>{{ disp.dia_semana | titlecase }} - {{ disp.especialidad.nombre }}</h4>
+        <div class="horarios">
+          <div class="horario" *ngFor="let horario of disp.horarios">
+            <i class="fas fa-clock"></i> {{ horario.hora_inicio }} - {{ horario.hora_fin }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sin-datos" *ngIf="disponibilidadHoraria.length === 0">
+      <i class="fas fa-calendar-times"></i>
+      <p>No hay disponibilidad horaria configurada</p>
+    </div>
+  </div>
+
+  <!-- Sección para Administradores -->
+  <div class="seccion-admin" *ngIf="tipoUsuario === 'admin'">
+    <div class="admin-info">
+      <i class="fas fa-user-shield"></i>
+      <h3>Panel de Administración</h3>
+      <p>Acceso completo al sistema</p>
+    </div>
+  </div>
+</div>
+
+<div class="loading-container" *ngIf="cargando">
+  <div class="spinner"></div>
+  <p>Cargando perfil...</p>
+</div>
+
+<!-- Modal Disponibilidad -->
+<div class="modal-overlay" *ngIf="mostrarModalDisponibilidad" (click)="cerrarModalDisponibilidad()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-clock"></i> Configurar Disponibilidad Horaria</h3>
+      <button class="btn-close" (click)="cerrarModalDisponibilidad()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="guardarDisponibilidad()" autocomplete="off">
+        <div class="form-group">
+          <label>Especialidad:</label>
+          <select [(ngModel)]="formDisponibilidad.especialidadId" name="especialidad" required class="form-control">
+            <option *ngFor="let esp of especialidades" [value]="esp.id">{{ esp.nombre }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Día de la semana:</label>
+          <select [(ngModel)]="formDisponibilidad.diaSemana" name="diaSemana" required class="form-control">
+            <option *ngFor="let dia of diasSemana" [value]="dia.valor">{{ dia.label }}</option>
+          </select>
+        </div>
+        <div class="form-group horarios-form">
+          <label>Horarios:</label>
+          <div class="horario-row">
+            <input type="time" [(ngModel)]="formDisponibilidad.horaInicio" name="horaInicio" required class="form-control" style="width:120px;">
+            <span style="margin:0 8px;">a</span>
+            <input type="time" [(ngModel)]="formDisponibilidad.horaFin" name="horaFin" required class="form-control" style="width:120px;">
+            <button type="button" class="btn-agregar-horario" (click)="agregarHorario()" [disabled]="!formDisponibilidad.horaInicio || !formDisponibilidad.horaFin">Agregar</button>
+          </div>
+        </div>
+        <div class="horarios-lista" *ngIf="formDisponibilidad.horarios.length > 0">
+          <h4>Horarios agregados:</h4>
+          <div class="horario-item" *ngFor="let h of formDisponibilidad.horarios; let i = index">
+            <span>{{ h.horaInicio }} - {{ h.horaFin }}</span>
+            <button type="button" class="btn-eliminar-horario" (click)="eliminarHorario(i)"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="cerrarModalDisponibilidad()">Cancelar</button>
+      <button class="btn-guardar" type="button" (click)="guardarDisponibilidad()" [disabled]="!formDisponibilidad.especialidadId || !formDisponibilidad.diaSemana || formDisponibilidad.horarios.length === 0">Guardar</button>
+    </div>
+  </div>
+</div>
+

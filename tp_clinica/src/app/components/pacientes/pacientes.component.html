@@ -1,0 +1,74 @@
+<div class="pacientes-container">
+  <div class="header">
+    <h2><i class="fas fa-users"></i> Mis Pacientes</h2>
+    <p>Pacientes que has atendido al menos una vez</p>
+  </div>
+
+  <div class="loading" *ngIf="cargando">
+    <i class="fas fa-spinner fa-spin"></i> Cargando...
+  </div>
+
+  <div class="pacientes-lista" *ngIf="!cargando && !mostrarHistoria">
+    <div class="paciente-card" *ngFor="let paciente of pacientes">
+      <div class="paciente-info">
+        <img [src]="paciente.imagen_perfil_1 || 'assets/default-avatar.png'" [alt]="paciente.nombre">
+        <div>
+          <h3>{{ paciente.nombre }} {{ paciente.apellido }}</h3>
+          <p>DNI: {{ paciente.dni }}</p>
+          <p>Obra Social: {{ paciente.obra_social }}</p>
+        </div>
+      </div>
+      <button class="btn-ver" (click)="verHistoriaClinica(paciente)">
+        <i class="fas fa-file-medical"></i> Ver Historia Clínica
+      </button>
+    </div>
+
+    <div class="sin-pacientes" *ngIf="pacientes.length === 0">
+      <i class="fas fa-inbox"></i>
+      <p>Aún no has atendido ningún paciente</p>
+    </div>
+  </div>
+
+  <!-- Modal Historia Clínica -->
+  <div class="modal-overlay" *ngIf="mostrarHistoria" (click)="cerrarHistoria()">
+    <div class="modal-contenido" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fas fa-notes-medical"></i> Historia Clínica</h3>
+        <button class="btn-cerrar" (click)="cerrarHistoria()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="paciente-info-modal" *ngIf="pacienteSeleccionado">
+          <h4>{{ pacienteSeleccionado.nombre }} {{ pacienteSeleccionado.apellido }}</h4>
+          <p>DNI: {{ pacienteSeleccionado.dni }}</p>
+        </div>
+
+        <div class="historia-lista">
+          <div class="historia-item" *ngFor="let historia of historiaClinica">
+            <div class="historia-fecha">
+              <i class="fas fa-calendar-alt"></i> {{ historia.fecha }}
+            </div>
+            <div class="historia-datos">
+              <div class="dato"><strong>Altura:</strong> {{ historia.altura }} cm</div>
+              <div class="dato"><strong>Peso:</strong> {{ historia.peso }} kg</div>
+              <div class="dato"><strong>Temperatura:</strong> {{ historia.temperatura }}°C</div>
+              <div class="dato"><strong>Presión:</strong> {{ historia.presion }}</div>
+            </div>
+            <div class="datos-dinamicos" *ngIf="historia.datos_dinamicos">
+              <h5>Datos Adicionales:</h5>
+              <div class="dato" *ngFor="let dato of historia.datos_dinamicos">
+                <strong>{{ dato.clave }}:</strong> {{ dato.valor }}
+              </div>
+            </div>
+          </div>
+
+          <div class="sin-historia" *ngIf="historiaClinica.length === 0">
+            <i class="fas fa-inbox"></i>
+            <p>No hay historia clínica registrada</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

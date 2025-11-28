@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase.service';
+import { CaptchaComponent } from '../captcha/captcha.component';
 import { 
   Paciente, 
   Especialista, 
@@ -34,11 +35,13 @@ interface UsuarioCompleto {
 
 @Component({
   selector: 'app-usuarios',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, CaptchaComponent],
   templateUrl: './usuarios.component.html',
   styleUrl: './usuarios.component.css'
 })
 export class UsuariosComponent implements OnInit {
+
+  @ViewChild('captchaFormulario') captchaFormulario!: CaptchaComponent;
 
   usuarios: UsuarioCompleto[] = [];
   usuariosFiltrados: UsuarioCompleto[] = [];
@@ -46,6 +49,7 @@ export class UsuariosComponent implements OnInit {
   loading = false;
   mensaje = '';
   mensajeTipo: 'success' | 'error' = 'success';
+  captchaValido = false;
 
   // Formularios
   formularioFiltro!: FormGroup;
@@ -55,6 +59,11 @@ export class UsuariosComponent implements OnInit {
   mostrandoFormulario = false;
   tipoUsuarioNuevo: TipoUsuario = TipoUsuario.PACIENTE;
   editandoUsuario: UsuarioCompleto | null = null;
+  
+  // Historia Clínica
+  mostrarHistoriaClinica = false;
+  pacienteSeleccionado: any = null;
+  historiaClinica: any[] = [];
 
   // Referencias para archivos
   imagenPerfil1: File | null = null;
@@ -286,11 +295,17 @@ export class UsuariosComponent implements OnInit {
     this.editandoUsuario = null;
     this.formularioNuevoUsuario.reset();
     this.limpiarArchivos();
+    this.captchaValido = false;
   }
 
   async guardarUsuario() {
     if (this.formularioNuevoUsuario.invalid) {
       this.formularioNuevoUsuario.markAllAsTouched();
+      return;
+    }
+
+    if (!this.captchaValido) {
+      this.mostrarMensaje('Por favor verifica el captcha para continuar', 'error');
       return;
     }
 
@@ -420,6 +435,71 @@ export class UsuariosComponent implements OnInit {
     setTimeout(() => {
       this.mensaje = '';
     }, 5000);
+  }
+
+  async exportarExcel() {
+    try {
+      this.loading = true;
+      await this.supabaseService.exportarUsuariosAExcel();
+      this.mostrarMensaje('Excel exportado correctamente', 'success');
+    } catch (error) {
+      console.error('Error exportando Excel:', error);
+      this.mostrarMensaje('Error al exportar Excel', 'error');
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async verHistoriaClinica(usuario: any) {
+    try {
+      this.loading = true;
+      this.pacienteSeleccionado = usuario;
+      
+      const historias = await this.supabaseService.obtenerHistoriaClinicaPaciente(usuario.id);
+      
+      this.historiaClinica = historias.map((historia: any) => {
+        let datosDinamicos = historia.datos_dinamicos;
+        
+        // Si es string, parsear
+        if (typeof datosDinamicos === 'string') {
+          try {
+            datosDinamicos = JSON.parse(datosDinamicos);
+          } catch (e) {
+            console.error('Error parseando datos_dinamicos:', e);
+            datosDinamicos = [];
+          }
+        }
+        
+        // Si no es array, convertir a array vacío
+        if (!Array.isArray(datosDinamicos)) {
+          datosDinamicos = [];
+        }
+        
+        return {
+          ...historia,
+          datos_dinamicos: datosDinamicos
+        };
+      });
+      
+      console.log('Historia clínica procesada:', this.historiaClinica);
+      
+      this.mostrarHistoriaClinica = true;
+    } catch (error) {
+      console.error('Error al cargar historia clínica:', error);
+      this.mostrarMensaje('Error al cargar historia clínica', 'error');
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  cerrarHistoriaClinica() {
+    this.mostrarHistoriaClinica = false;
+    this.pacienteSeleccionado = null;
+    this.historiaClinica = [];
+  }
+
+  onCaptchaValidado(isValid: boolean) {
+    this.captchaValido = isValid;
   }
 
   get formControls() {

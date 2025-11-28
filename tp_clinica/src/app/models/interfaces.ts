@@ -8,7 +8,7 @@ export interface Especialidad {
 }
 
 export interface Paciente {
-  id?: string;
+  id: string; // ID es obligatorio
   user_id?: string;
   nombre: string;
   apellido: string;
@@ -33,6 +33,7 @@ export interface Especialista {
   dni: string;
   email: string;
   imagen_perfil?: string;
+  duracion_turno?: number; // Duración del turno en minutos (por defecto 30)
   activo?: boolean;
   email_verificado?: boolean;
   aprobado_por_admin?: boolean;
@@ -128,4 +129,102 @@ export interface RegistroAdministradorForm {
   email: string;
   password: string;
   imagen_perfil?: File;
+}
+
+// =============================================
+// TURNOS
+// =============================================
+
+export enum EstadoTurno {
+  PENDIENTE = 'pendiente',
+  ACEPTADO = 'aceptado',
+  RECHAZADO = 'rechazado',
+  CANCELADO = 'cancelado',
+  REALIZADO = 'realizado'
+}
+
+export interface Turno {
+  id?: string;
+  paciente_id: string;
+  especialista_id: string;
+  especialidad_id: string;
+  fecha: string; // Formato ISO 8601
+  hora: string; // Formato HH:mm
+  duracion_minutos?: number; // Por defecto 30
+  estado: EstadoTurno;
+  motivo_cancelacion?: string;
+  motivo_rechazo?: string;
+  resena?: string; // Comentario del especialista sobre la consulta
+  calificacion?: number; // Calificación del paciente (1-5)
+  comentario_paciente?: string; // Comentario del paciente
+  encuesta_completada?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  // Datos relacionados (para visualización)
+  paciente?: Paciente;
+  especialista?: Especialista;
+  especialidad?: Especialidad;
+}
+
+export interface HistoriaClinica {
+  id?: string;
+  paciente_id: string;
+  especialista_id: string;
+  turno_id?: string;
+  fecha: string;
+  altura?: number; // en cm
+  peso?: number; // en kg
+  temperatura?: number; // en °C
+  presion?: string; // ej: "120/80"
+  datos_dinamicos?: DatoDinamico[]; // Máximo 3
+  created_at?: string;
+  updated_at?: string;
+  // Datos relacionados (para visualización)
+  especialista?: Especialista;
+  turno?: Turno;
+}
+
+export interface DatoDinamico {
+  clave: string;
+  valor: string;
+}
+
+export interface EncuestaAtencion {
+  id?: string;
+  turno_id: string;
+  paciente_id: string;
+  especialista_id: string;
+  fecha: string;
+  // Respuestas de la encuesta
+  respuesta_texto?: string;
+  calificacion_estrellas?: number; // 1-5
+  respuesta_radio?: string;
+  respuestas_checkbox?: string[]; // múltiples opciones
+  respuesta_rango?: number; // 0-100
+  created_at?: string;
+}
+
+export interface SolicitudTurno {
+  paciente_id: string;
+  especialista_id: string;
+  especialidad_id: string;
+  fecha: string;
+  hora: string;
+  duracion_minutos?: number;
+}
+
+export interface DisponibilidadHoraria {
+  id?: string;
+  especialista_id: string;
+  especialidad_id: string;
+  dia_semana: string; // 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'
+  horarios: HorarioDisponible[]; // Array de horarios disponibles para ese día
+  activa?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface HorarioDisponible {
+  hora_inicio: string; // HH:mm
+  hora_fin: string; // HH:mm
 }

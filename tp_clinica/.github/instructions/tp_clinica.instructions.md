@@ -83,8 +83,7 @@ Sprint 2
 ● Requerimientos mínimos:
 ○ Captcha: puede ser el de google o uno propio, debemos incorporarlo en el registro de los
 usuarios.
-○ Readme: debe contener una explicación de la Clínica, pantallas, formas de acceder a las
-diferentes secciones y que contiene cada sección.
+○ Readme: debe contener una explicación de la Clínica, pantallas, formas de acceder a las diferentes secciones y que contiene cada sección.
 
 En esta entrega nos vamos a encargar de la carga y visualización de turnos. Debemos incorporar las
 siguientes secciones:

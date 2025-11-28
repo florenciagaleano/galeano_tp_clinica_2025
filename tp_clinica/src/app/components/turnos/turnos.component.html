@@ -1,0 +1,212 @@
+<div class="turnos-container">
+  <!-- Header -->
+  <div class="header">
+    <button class="btn-volver" (click)="volver()">
+      <i class="fas fa-arrow-left"></i>
+      Volver
+    </button>
+    <h2>Gestión de Turnos</h2>
+    <div class="header-actions">
+      <button class="btn-nuevo" (click)="irASolicitarTurno()">
+        <i class="fas fa-plus"></i>
+        Nuevo Turno
+      </button>
+      <button class="btn-exportar" (click)="exportarExcel()">
+        <i class="fas fa-file-excel"></i>
+        Exportar
+      </button>
+      <button class="btn-reporte" (click)="generarReporte()">
+        <i class="fas fa-file-pdf"></i>
+        Reporte
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros-container">
+    <div class="filtro-grupo">
+      <label>
+        <i class="fas fa-stethoscope"></i>
+        Especialidad
+      </label>
+      <select 
+        [(ngModel)]="filtroEspecialidad" 
+        (ngModelChange)="onFiltroChange()"
+        class="select-filtro">
+        <option value="">Todas las especialidades</option>
+        <option *ngFor="let esp of especialidades" [value]="esp">
+          {{ esp }}
+        </option>
+      </select>
+    </div>
+    <div class="filtro-grupo">
+      <label>
+        <i class="fas fa-user-md"></i>
+        Especialista
+      </label>
+      <select 
+        [(ngModel)]="filtroEspecialista" 
+        (ngModelChange)="onFiltroChange()"
+        class="select-filtro">
+        <option value="">Todos los especialistas</option>
+        <option *ngFor="let esp of especialistas" [value]="esp">
+          {{ esp }}
+        </option>
+      </select>
+    </div>
+    <div class="filtro-resultados">
+      <p>{{ turnosFiltrados.length }} turnos encontrados</p>
+      <button class="btn-limpiar" (click)="limpiarFiltros()" *ngIf="filtroEspecialidad || filtroEspecialista">
+        <i class="fas fa-times"></i>
+        Limpiar filtros
+      </button>
+    </div>
+  </div>
+
+  <!-- Lista de turnos -->
+  <div class="turnos-lista">
+    <div class="turno-card" *ngFor="let turno of turnosFiltrados">
+      <!-- Header del turno -->
+      <div class="turno-header">
+        <div class="turno-fecha">
+          <i class="far fa-calendar"></i>
+          <strong>{{ formatearFecha(turno.fecha) }}</strong>
+          <span class="separador">•</span>
+          <i class="far fa-clock"></i>
+          <strong>{{ turno.hora }}</strong>
+        </div>
+        <span class="badge" [ngClass]="getEstadoBadgeClass(turno.estado)">
+          {{ getEstadoLabel(turno.estado) }}
+        </span>
+      </div>
+
+      <!-- Contenido del turno -->
+      <div class="turno-contenido">
+        <!-- Paciente -->
+        <div class="turno-seccion">
+          <div class="seccion-header">
+            <i class="fas fa-user"></i>
+            <span>Paciente</span>
+          </div>
+          <div class="seccion-info">
+            <strong>{{ turno.paciente?.nombre }} {{ turno.paciente?.apellido }}</strong>
+            <p>DNI: {{ turno.paciente?.dni }}</p>
+            <p>Obra Social: {{ turno.paciente?.obra_social }}</p>
+            <button class="btn-link" (click)="verHistoriaClinica(turno.paciente_id)">
+              <i class="fas fa-file-medical"></i>
+              Ver Historia Clínica
+            </button>
+          </div>
+        </div>
+
+        <!-- Especialista -->
+        <div class="turno-seccion">
+          <div class="seccion-header">
+            <i class="fas fa-user-md"></i>
+            <span>Especialista</span>
+          </div>
+          <div class="seccion-info">
+            <strong>Dr./Dra. {{ turno.especialista?.nombre }} {{ turno.especialista?.apellido }}</strong>
+            <p class="especialidad-tag">
+              <i class="fas fa-stethoscope"></i>
+              {{ turno.especialidad?.nombre }}
+            </p>
+            <p>Duración: {{ turno.duracion_minutos }} min</p>
+          </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="turno-seccion turno-detalles">
+          <div *ngIf="turno.resena" class="detalle-item">
+            <strong><i class="fas fa-notes-medical"></i> Reseña:</strong>
+            <p>{{ turno.resena }}</p>
+          </div>
+          <div *ngIf="turno.motivo_cancelacion" class="detalle-item">
+            <strong><i class="fas fa-ban"></i> Motivo de cancelación:</strong>
+            <p>{{ turno.motivo_cancelacion }}</p>
+          </div>
+          <div *ngIf="turno.motivo_rechazo" class="detalle-item">
+            <strong><i class="fas fa-times"></i> Motivo de rechazo:</strong>
+            <p>{{ turno.motivo_rechazo }}</p>
+          </div>
+          <div *ngIf="turno.comentario_paciente" class="detalle-item">
+            <strong><i class="fas fa-comment"></i> Comentario del paciente:</strong>
+            <p>{{ turno.comentario_paciente }}</p>
+          </div>
+          <div *ngIf="turno.calificacion" class="detalle-item">
+            <strong><i class="fas fa-star"></i> Calificación:</strong>
+            <div class="estrellas-display">
+              <i class="fas fa-star" *ngFor="let i of [1,2,3,4,5]" 
+                 [class.activa]="i <= turno.calificacion!"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="turno-acciones">
+        <button 
+          class="btn-accion btn-cancelar" 
+          (click)="abrirModalCancelar(turno)"
+          *ngIf="puedeCancelar(turno)">
+          <i class="fas fa-ban"></i>
+          Cancelar Turno
+        </button>
+      </div>
+    </div>
+
+    <p class="no-turnos" *ngIf="turnosFiltrados.length === 0 && !cargando">
+      No se encontraron turnos
+    </p>
+  </div>
+
+  <!-- Modal Cancelar -->
+  <div class="modal-overlay" *ngIf="modalCancelarVisible" (click)="cerrarModalCancelar()">
+    <div class="modal-contenido" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fas fa-ban"></i> Cancelar Turno</h3>
+        <button class="btn-cerrar" (click)="cerrarModalCancelar()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>¿Está seguro que desea cancelar este turno?</p>
+        <div *ngIf="turnoSeleccionado" class="turno-info-modal">
+          <p><strong>Paciente:</strong> {{ turnoSeleccionado.paciente?.nombre }} {{ turnoSeleccionado.paciente?.apellido }}</p>
+          <p><strong>Especialista:</strong> Dr./Dra. {{ turnoSeleccionado.especialista?.nombre }} {{ turnoSeleccionado.especialista?.apellido }}</p>
+          <p><strong>Fecha:</strong> {{ formatearFecha(turnoSeleccionado.fecha) }} - {{ turnoSeleccionado.hora }}</p>
+        </div>
+        <div class="form-grupo">
+          <label>Motivo de cancelación *</label>
+          <textarea 
+            [(ngModel)]="motivoCancelacion" 
+            placeholder="Ingrese el motivo de la cancelación..."
+            rows="4"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secundario" (click)="cerrarModalCancelar()">Cerrar</button>
+        <button class="btn-confirmar" (click)="cancelarTurno()" [disabled]="!motivoCancelacion.trim()">
+          Confirmar Cancelación
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="cargando">
+    <div class="spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  <!-- Mensajes -->
+  <div class="mensaje mensaje-error" *ngIf="mensajeError">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ mensajeError }}
+  </div>
+
+  <div class="mensaje mensaje-exito" *ngIf="mensajeExito">
+    <i class="fas fa-check-circle"></i>
+    {{ mensajeExito }}
+  </div>
+</div>

@@ -36,7 +36,7 @@
     </div>
 
     <!-- Formulario de registro (se muestra después de seleccionar tipo) -->
-    <div *ngIf="tipoUsuarioSeleccionado" class="register-form-container">
+    <div *ngIf="tipoUsuarioSeleccionado" class="register-form-container" appAnimacionEntrada="fade">
       <div class="form-header">
         <button type="button" class="btn-back" (click)="volverASeleccion()">
           <i class="fas fa-arrow-left"></i>
@@ -105,6 +105,7 @@
             formControlName="dni"
             class="form-control"
             placeholder="12345678"
+            appFormatoDni
             [class.error]="mostrarError(formPaciente['dni'])">
           <div *ngIf="mostrarError(formPaciente['dni'])" class="error-message">
             {{ obtenerMensajeError('dni', formularioPaciente) }}
@@ -192,10 +193,17 @@
         </div>
       </div>
 
+      <!-- Captcha para Pacientes -->
+      <app-captcha 
+        #captchaPaciente
+        [enabled]="true"
+        (captchaValidated)="onCaptchaPacienteValidado($event)">
+      </app-captcha>
+
       <button 
         type="submit" 
         class="btn-primary"
-        [disabled]="loading || formularioPaciente.invalid">
+        [disabled]="loading || formularioPaciente.invalid || !captchaPacienteValido">
         <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
         {{ loading ? 'Registrando...' : 'Registrar Paciente' }}
       </button>
@@ -255,6 +263,7 @@
             formControlName="dni"
             class="form-control"
             placeholder="12345678"
+            appFormatoDni
             [class.error]="mostrarError(formEspecialista['dni'])">
           <div *ngIf="mostrarError(formEspecialista['dni'])" class="error-message">
             {{ obtenerMensajeError('dni', formularioEspecialista) }}
@@ -361,10 +370,17 @@
         <small class="help-text">Formato: JPG, PNG. Máximo 5MB</small>
       </div>
 
+      <!-- Captcha para Especialistas -->
+      <app-captcha 
+        #captchaEspecialista
+        [enabled]="true"
+        (captchaValidated)="onCaptchaEspecialistaValidado($event)">
+      </app-captcha>
+
       <button 
         type="submit" 
         class="btn-primary"
-        [disabled]="loading || formularioEspecialista.invalid">
+        [disabled]="loading || formularioEspecialista.invalid || !captchaEspecialistaValido">
         <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
         {{ loading ? 'Registrando...' : 'Registrar Especialista' }}
       </button>
