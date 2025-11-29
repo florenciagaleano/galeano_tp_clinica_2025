@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Turno, EstadoTurno, TipoUsuario } from '../../models/interfaces';
 import { SupabaseService } from '../../services/supabase.service';
 import { EstadoTurnoPipe } from '../../pipes/estado-turno.pipe';
@@ -81,8 +82,13 @@ export class MisTurnosComponent implements OnInit {
   TipoUsuario = TipoUsuario;
 
   constructor(
-    private supabaseService: SupabaseService
+    private supabaseService: SupabaseService,
+    private router: Router
   ) {}
+
+  volver() {
+    this.router.navigate(['/home']);
+  }
 
   async ngOnInit() {
     await this.identificarUsuario();

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 import { Paciente, Especialista, Administrador, TipoUsuario, HistoriaClinica } from '../../models/interfaces';
 import { EdadPipe, FechaTurnoPipe } from '../../pipes';
@@ -43,7 +44,14 @@ export class MiPerfilComponent implements OnInit {
     { valor: 'sabado', label: 'Sábado' }
   ];
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(
+    private supabaseService: SupabaseService,
+    private router: Router
+  ) {}
+
+  volver() {
+    this.router.navigate(['/home']);
+  }
 
   async ngOnInit() {
     await this.cargarDatosUsuario();

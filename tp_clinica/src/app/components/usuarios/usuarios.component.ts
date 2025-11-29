@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 import { CaptchaComponent } from '../captcha/captcha.component';
 import { 
@@ -75,8 +76,13 @@ export class UsuariosComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private supabaseService: SupabaseService
+    private supabaseService: SupabaseService,
+    private router: Router
   ) {}
+
+  volver() {
+    this.router.navigate(['/home']);
+  }
 
   async ngOnInit() {
     this.inicializarFormularios();

@@ -1,4 +1,10 @@
 <div class="mi-perfil-container" *ngIf="!cargando" appAnimacionEntrada="fade">
+  <div style="margin-bottom: 20px;">
+    <button class="btn-volver" (click)="volver()">
+      <i class="fas fa-arrow-left"></i>
+      Volver
+    </button>
+  </div>
   <div class="perfil-header">
     <div class="perfil-avatar">
       <img [src]="imagenPerfil" [alt]="nombreCompleto">

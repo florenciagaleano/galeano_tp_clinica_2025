@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 import * as XLSX from 'xlsx';
 import { Chart, BarElement, BarController, CategoryScale, LinearScale, Title, Tooltip, Legend, PieController, ArcElement, registerables } from 'chart.js';
@@ -74,7 +75,14 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   chartEspecialidades: Chart | null = null;
   chartDias: Chart | null = null;
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(
+    private supabaseService: SupabaseService,
+    private router: Router
+  ) {}
+
+  volver() {
+    this.router.navigate(['/home']);
+  }
 
   async ngOnInit() {
     await this.cargarLogsIngresos();

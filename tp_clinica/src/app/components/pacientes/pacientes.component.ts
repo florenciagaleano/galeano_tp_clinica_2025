@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 
 @Component({
@@ -15,7 +16,14 @@ export class PacientesComponent implements OnInit {
   mostrarHistoria = false;
   cargando = false;
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(
+    private supabaseService: SupabaseService,
+    private router: Router
+  ) {}
+
+  volver() {
+    this.router.navigate(['/home']);
+  }
 
   async ngOnInit() {
     await this.cargarPacientesAtendidos();

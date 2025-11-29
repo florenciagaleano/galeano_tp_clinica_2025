@@ -279,13 +279,18 @@ export class SolicitarTurnoComponent implements OnInit {
         .select('hora, duracion_minutos')
         .eq('especialista_id', this.especialistaSeleccionado.id)
         .eq('fecha', fechaStr)
-        .in('estado', ['pendiente', 'aceptado']); // Solo turnos activos
+        .not('estado', 'in', '(cancelado,rechazado)'); // Excluir solo cancelados y rechazados
 
       if (error) throw error;
 
       // Generar horarios disponibles basados en la disponibilidad
       const horarios = disponibilidadDelDia.horarios || [];
       const turnosDuracion = this.especialistaSeleccionado.duracion_turno || 30;
+
+      // Obtener hora actual si la fecha seleccionada es hoy
+      const hoy = new Date();
+      const esHoy = this.fechaSeleccionada.toDateString() === hoy.toDateString();
+      const horaActualEnMinutos = esHoy ? (hoy.getHours() * 60 + hoy.getMinutes()) : 0;
 
       for (const horario of horarios) {
         const horaInicio = this.convertirHoraAMinutos(horario.hora_inicio);
@@ -295,9 +300,16 @@ export class SolicitarTurnoComponent implements OnInit {
         for (let minutos = horaInicio; minutos < horaFin; minutos += turnosDuracion) {
           const horaStr = this.convertirMinutosAHora(minutos);
           
-          // Verificar si está ocupado
+          // Si es hoy, verificar que el horario no haya pasado
+          if (esHoy && minutos <= horaActualEnMinutos) {
+            continue; // Saltar horarios que ya pasaron
+          }
+          
+          // Verificar si está ocupado (normalizar formato de hora para comparación)
           const estaOcupado = turnosOcupados?.some((turno: any) => {
-            return turno.hora === horaStr;
+            // Normalizar ambas horas al formato HH:mm para comparar
+            const horaTurno = turno.hora.substring(0, 5); // Toma solo HH:mm de HH:mm:ss
+            return horaTurno === horaStr;
           });
 
           if (!estaOcupado) {
