@@ -435,6 +435,63 @@
           </div>
         </div>
       </div>
+
+      <!-- Sprint 5: Nuevos Datos Dinámicos con Controles Específicos -->
+      <div class="historia-section">
+        <h4><i class="fas fa-heartbeat"></i> Datos Adicionales Específicos</h4>
+        
+        <!-- Control de Rango: Nivel de Dolor -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-exclamation-triangle"></i> 
+            Nivel de Dolor (0-100): <strong>{{ nivelDolor }}</strong>
+          </label>
+          <input 
+            type="range" 
+            [(ngModel)]="nivelDolor"
+            class="form-range"
+            min="0"
+            max="100"
+            step="1">
+          <div class="range-labels">
+            <span>Sin dolor</span>
+            <span>Dolor moderado</span>
+            <span>Dolor severo</span>
+          </div>
+        </div>
+
+        <!-- Cuadro de Texto Numérico: Frecuencia Cardíaca -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-heartbeat"></i> 
+            Frecuencia Cardíaca (ppm)
+          </label>
+          <input 
+            type="number" 
+            [(ngModel)]="frecuenciaCardiaca"
+            class="form-control"
+            placeholder="Ej: 72"
+            min="40"
+            max="200">
+        </div>
+
+        <!-- Switch: Requiere Seguimiento -->
+        <div class="form-group">
+          <label class="switch-label">
+            <i class="fas fa-calendar-check"></i> 
+            ¿Requiere Seguimiento?
+          </label>
+          <div class="switch-container">
+            <label class="switch">
+              <input 
+                type="checkbox" 
+                [(ngModel)]="requiereSeguimiento">
+              <span class="slider"></span>
+            </label>
+            <span class="switch-text">{{ requiereSeguimiento ? 'Sí' : 'No' }}</span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-light" (click)="cerrarModales()">Cancelar</button>

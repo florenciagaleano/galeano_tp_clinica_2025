@@ -70,12 +70,17 @@ export class MisTurnosComponent implements OnInit {
   temperatura: number | null = null;
   presion = '';
   
-  // Historia Clínica - 3 datos dinámicos
+  // Historia Clínica - 3 datos dinámicos originales
   datosDinamicos: { clave: string; valor: string }[] = [
     { clave: '', valor: '' },
     { clave: '', valor: '' },
     { clave: '', valor: '' }
   ];
+
+  // Sprint 5 - Nuevos 3 datos dinámicos con controles específicos
+  nivelDolor: number = 0; // Control de rango 0-100
+  frecuenciaCardiaca: number | null = null; // Cuadro de texto numérico
+  requiereSeguimiento: boolean = false; // Switch Si/No
   
   // Exponer enum para template
   EstadoTurno = EstadoTurno;
@@ -500,6 +505,18 @@ export class MisTurnosComponent implements OnInit {
         .filter(d => d.clave.trim() && d.valor.trim())
         .map(d => ({ clave: d.clave.trim(), valor: d.valor.trim() }));
 
+      // Agregar los 3 nuevos datos dinámicos del Sprint 5
+      const nuevosDatosDinamicos = [
+        { clave: 'Nivel de Dolor', valor: this.nivelDolor.toString() },
+        { clave: 'Frecuencia Cardíaca', valor: this.frecuenciaCardiaca ? this.frecuenciaCardiaca.toString() : '0' },
+        { clave: 'Requiere Seguimiento', valor: this.requiereSeguimiento ? 'Sí' : 'No' }
+      ];
+
+      const todosDatosDinamicos = [...datosDinamicosFiltrados, ...nuevosDatosDinamicos];
+
+      console.log('Guardando historia clínica para turno:', this.turnoSeleccionado);
+      console.log('paciente_id:', this.turnoSeleccionado.paciente_id);
+
       const { error: errorHistoria } = await this.supabaseService.supabase
         .from('historia_clinica')
         .insert({
@@ -511,7 +528,7 @@ export class MisTurnosComponent implements OnInit {
           peso: this.peso,
           temperatura: this.temperatura,
           presion: this.presion,
-          datos_dinamicos: datosDinamicosFiltrados.length > 0 ? datosDinamicosFiltrados : null
+          datos_dinamicos: todosDatosDinamicos.length > 0 ? todosDatosDinamicos : null
         });
 
       if (errorHistoria) {
@@ -606,6 +623,12 @@ export class MisTurnosComponent implements OnInit {
       { clave: '', valor: '' },
       { clave: '', valor: '' }
     ];
+    
+    // Limpiar nuevos campos Sprint 5
+    this.nivelDolor = 0;
+    this.frecuenciaCardiaca = null;
+    this.requiereSeguimiento = false;
+    
     this.resenaConsulta = '';
     this.motivoCancelacion = '';
     this.motivoRechazo = '';

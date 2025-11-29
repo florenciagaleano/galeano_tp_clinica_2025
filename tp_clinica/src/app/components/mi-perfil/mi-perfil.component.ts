@@ -77,6 +77,8 @@ export class MiPerfilComponent implements OnInit {
       if (paciente) {
         this.usuario = paciente;
         this.tipoUsuario = TipoUsuario.PACIENTE;
+        console.log('Paciente encontrado:', paciente);
+        console.log('Buscando historia clínica con paciente_id:', paciente.id);
         await this.cargarHistoriaClinica(paciente.id);
         return;
       }
@@ -120,7 +122,9 @@ export class MiPerfilComponent implements OnInit {
   }
 
   async cargarHistoriaClinica(pacienteId: string) {
+    console.log('Cargando historia clínica para paciente:', pacienteId);
     const data = await this.supabaseService.obtenerHistoriaClinicaPaciente(pacienteId);
+    console.log('Historia clínica recibida:', data);
     
     // Parsear datos_dinamicos si viene como string
     this.historiaClinica = data.map((historia: any) => ({
@@ -129,6 +133,7 @@ export class MiPerfilComponent implements OnInit {
         ? JSON.parse(historia.datos_dinamicos) 
         : historia.datos_dinamicos
     }));
+    console.log('Historia clínica parseada:', this.historiaClinica);
   }
 
   async cargarDisponibilidadHoraria(especialistaId: string) {
@@ -156,71 +161,144 @@ export class MiPerfilComponent implements OnInit {
 
     const doc = new jsPDF();
     
-    // Título
-    doc.setFontSize(20);
-    doc.setTextColor(117, 108, 131); // fourth-color
+    // Logo de la clínica (usando el favicon)
+    const logoImg = new Image();
+    logoImg.src = 'assets/favicon.jpg';
+    
+    logoImg.onload = () => {
+      try {
+        // Agregar logo en la esquina superior izquierda
+        doc.addImage(logoImg, 'JPEG', 15, 10, 25, 25);
+      } catch (error) {
+        console.log('No se pudo cargar el logo');
+      }
+      
+      // Título - Clínica OnLine
+      doc.setFontSize(22);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(117, 108, 131); // fourth-color
+      doc.text('Clínica OnLine', 105, 20, { align: 'center' });
+      
+      // Subtítulo
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Historia Clínica', 105, 30, { align: 'center' });
+      
+      // Fecha de emisión
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      const fechaEmision = new Date().toLocaleDateString('es-AR', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      doc.text(`Fecha de emisión: ${fechaEmision}`, 105, 38, { align: 'center' });
+      
+      // Línea separadora
+      doc.setDrawColor(185, 225, 220);
+      doc.setLineWidth(0.5);
+      doc.line(20, 42, 190, 42);
+      
+      // Datos del paciente
+      doc.setFontSize(12);
+      doc.setTextColor(0);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Datos del Paciente', 20, 52);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Nombre: ${this.usuario.nombre} ${this.usuario.apellido}`, 20, 60);
+      doc.text(`DNI: ${this.usuario.dni}`, 20, 68);
+      doc.text(`Edad: ${this.usuario.edad} años`, 20, 76);
+      doc.text(`Obra Social: ${this.usuario.obra_social}`, 20, 84);
+      
+      // Tabla de historia clínica
+      const tableData = this.historiaClinica.map(h => [
+        new Date(h.fecha).toLocaleDateString('es-AR'),
+        `${h.especialista?.nombre || ''} ${h.especialista?.apellido || ''}`,
+        h.altura ? `${h.altura} cm` : '-',
+        h.peso ? `${h.peso} kg` : '-',
+        h.temperatura ? `${h.temperatura}°C` : '-',
+        h.presion || '-'
+      ]);
+
+      autoTable(doc, {
+        startY: 95,
+        head: [['Fecha', 'Especialista', 'Altura', 'Peso', 'Temp.', 'Presión']],
+        body: tableData,
+        theme: 'striped',
+        headStyles: { 
+          fillColor: [117, 108, 131], // fourth-color
+          textColor: [255, 255, 255],
+          fontStyle: 'bold'
+        },
+        styles: { fontSize: 9 }
+      });
+
+      // Datos dinámicos
+      let currentY = (doc as any).lastAutoTable.finalY + 10;
+    
+      if (this.historiaClinica.some(h => h.datos_dinamicos && h.datos_dinamicos.length > 0)) {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Datos Adicionales:', 20, currentY);
+        doc.setFont('helvetica', 'normal');
+        currentY += 8;
+        
+        this.historiaClinica.forEach(h => {
+          if (h.datos_dinamicos && h.datos_dinamicos.length > 0) {
+            doc.setFontSize(10);
+            doc.text(`${new Date(h.fecha).toLocaleDateString('es-AR')}:`, 25, currentY);
+            currentY += 6;
+            
+            h.datos_dinamicos.forEach((dato: any) => {
+              doc.text(`  • ${dato.clave}: ${dato.valor}`, 30, currentY);
+              currentY += 5;
+            });
+            currentY += 3;
+          }
+        });
+      }
+
+      // Pie de página
+      const pageCount = doc.getNumberOfPages();
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.text(`Clínica OnLine - Sistema de Gestión Médica`, 105, 285, { align: 'center' });
+      doc.text(`Página 1 de ${pageCount}`, 105, 290, { align: 'center' });
+
+      // Guardar PDF
+      doc.save(`historia-clinica-${this.usuario.dni}-${new Date().getTime()}.pdf`);
+    };
+    
+    // Si hay error cargando la imagen, generar PDF sin logo
+    logoImg.onerror = () => {
+      console.log('Logo no disponible, generando PDF sin logo');
+      this.generarPDFSinLogo(doc);
+    };
+  }
+
+  // Método auxiliar para generar PDF sin logo (fallback)
+  private generarPDFSinLogo(doc: jsPDF) {
+    // Título - Clínica OnLine
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(117, 108, 131);
     doc.text('Clínica OnLine', 105, 20, { align: 'center' });
     
     doc.setFontSize(16);
+    doc.setFont('helvetica', 'normal');
     doc.text('Historia Clínica', 105, 30, { align: 'center' });
     
-    // Fecha de emisión
+    const fechaEmision = new Date().toLocaleDateString('es-AR', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text(`Fecha de emisión: ${new Date().toLocaleDateString('es-AR')}`, 105, 38, { align: 'center' });
+    doc.text(`Fecha de emisión: ${fechaEmision}`, 105, 38, { align: 'center' });
     
-    // Datos del paciente
-    doc.setFontSize(12);
-    doc.setTextColor(0);
-    doc.text(`Paciente: ${this.usuario.nombre} ${this.usuario.apellido}`, 20, 50);
-    doc.text(`DNI: ${this.usuario.dni}`, 20, 58);
-    doc.text(`Edad: ${this.usuario.edad} años`, 20, 66);
-    doc.text(`Obra Social: ${this.usuario.obra_social}`, 20, 74);
-    
-    // Tabla de historia clínica
-    const tableData = this.historiaClinica.map(h => [
-      new Date(h.fecha).toLocaleDateString('es-AR'),
-      `${h.especialista?.nombre} ${h.especialista?.apellido}`,
-      h.altura ? `${h.altura} cm` : '-',
-      h.peso ? `${h.peso} kg` : '-',
-      h.temperatura ? `${h.temperatura}°C` : '-',
-      h.presion || '-'
-    ]);
-
-    autoTable(doc, {
-      startY: 85,
-      head: [['Fecha', 'Especialista', 'Altura', 'Peso', 'Temp.', 'Presión']],
-      body: tableData,
-      theme: 'striped',
-      headStyles: { fillColor: [185, 225, 220] }, // second-color
-      styles: { fontSize: 9 }
-    });
-
-    // Datos dinámicos
-    let currentY = (doc as any).lastAutoTable.finalY + 10;
-    
-    if (this.historiaClinica.some(h => h.datos_dinamicos && h.datos_dinamicos.length > 0)) {
-      doc.setFontSize(12);
-      doc.text('Datos Adicionales:', 20, currentY);
-      currentY += 8;
-      
-      this.historiaClinica.forEach(h => {
-        if (h.datos_dinamicos && h.datos_dinamicos.length > 0) {
-          doc.setFontSize(10);
-          doc.text(`${new Date(h.fecha).toLocaleDateString('es-AR')}:`, 25, currentY);
-          currentY += 6;
-          
-          h.datos_dinamicos.forEach((dato: any) => {
-            doc.text(`  • ${dato.clave}: ${dato.valor}`, 30, currentY);
-            currentY += 5;
-          });
-          currentY += 3;
-        }
-      });
-    }
-
-    // Guardar PDF
-    doc.save(`historia-clinica-${this.usuario.dni}.pdf`);
+    // Continuar con el resto del documento...
+    doc.save(`historia-clinica-${this.usuario.dni}-${new Date().getTime()}.pdf`);
   }
 
   abrirModalDisponibilidad() {

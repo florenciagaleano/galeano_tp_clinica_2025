@@ -438,10 +438,15 @@ export class SolicitarTurnoComponent implements OnInit {
           .eq('email', this.usuarioActual.email)
           .single();
 
+        console.log('Buscando paciente con email:', this.usuarioActual.email);
+        console.log('Paciente encontrado:', paciente);
+
         if (errorPaciente || !paciente) {
+          console.error('Error obteniendo paciente:', errorPaciente);
           throw new Error('No se pudo obtener el paciente');
         }
         pacienteId = paciente.id;
+        console.log('paciente_id para el turno:', pacienteId);
       }
 
       // Crear el turno usando el servicio
