@@ -11,7 +11,6 @@ export class AnimacionEntradaDirective implements OnInit {
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   ngOnInit() {
-    // Establecer estado inicial
     this.renderer.setStyle(this.el.nativeElement, 'opacity', '0');
     
     switch (this.appAnimacionEntrada) {
@@ -27,7 +26,6 @@ export class AnimacionEntradaDirective implements OnInit {
     
     this.renderer.setStyle(this.el.nativeElement, 'transition', `all ${this.duracion}ms ease-out`);
     
-    // Aplicar animación después de un pequeño delay
     setTimeout(() => {
       this.renderer.setStyle(this.el.nativeElement, 'opacity', '1');
       this.renderer.setStyle(this.el.nativeElement, 'transform', 'translateY(0) scale(1)');

@@ -22,7 +22,6 @@
           <tr>
             <th>Usuario</th>
             <th>Email</th>
-            <th>Tipo</th>
             <th>Fecha</th>
             <th>Hora</th>
           </tr>
@@ -31,7 +30,6 @@
           <tr *ngFor="let log of logsIngresos">
             <td>{{ log.usuario }}</td>
             <td>{{ log.email }}</td>
-            <td><span class="badge badge-tipo">{{ log.tipo }}</span></td>
             <td>{{ log.fecha }}</td>
             <td>{{ log.hora }}</td>
           </tr>
@@ -107,7 +105,7 @@
     <div class="informe-card media">
       <div class="informe-header">
         <h2><i class="fas fa-user-md"></i> Turnos Solicitados por Médico</h2>
-        <button class="btn-download" (click)="descargarTurnosSolicitadosExcel()">
+        <button class="btn-primary" (click)="descargarTurnosSolicitadosExcel()">
           <i class="fas fa-file-excel"></i> Excel
         </button>
       </div>
@@ -136,7 +134,7 @@
     <div class="informe-card media">
       <div class="informe-header">
         <h2><i class="fas fa-check-circle"></i> Turnos Finalizados por Médico</h2>
-        <button class="btn-download" (click)="descargarTurnosFinalizadosExcel()">
+        <button class="btn-primary" (click)="descargarTurnosFinalizadosExcel()">
           <i class="fas fa-file-excel"></i> Excel
         </button>
       </div>

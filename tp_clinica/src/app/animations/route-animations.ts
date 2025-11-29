@@ -9,7 +9,7 @@ import {
 } from '@angular/animations';
 
 export const slideInAnimation = trigger('routeAnimations', [
-  // 1. Animación Slide: Específica entre Home y Login
+  // btw home y login
   transition('HomePage <=> LoginPage', [
     style({ position: 'relative' }),
     query(':enter, :leave', [
@@ -35,7 +35,7 @@ export const slideInAnimation = trigger('routeAnimations', [
     query(':enter', animateChild(), { optional: true }),
   ]),
   
-  // 2. Animación Fade: Para todas las demás transiciones
+  // las demas
   transition('* <=> *', [
     style({ position: 'relative' }),
     query(':enter, :leave', [
