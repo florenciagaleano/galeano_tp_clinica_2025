@@ -251,9 +251,13 @@ export class MisTurnosComponent implements OnInit {
           const listaHc = Array.isArray(hcData) ? hcData : [hcData];
           
           listaHc.forEach((hc: any) => {
-            historiaTexto += `${hc.altura || ''} ${hc.peso || ''} ${hc.temperatura || ''} ${hc.presion || ''} `;
+            // Datos fijos
+            if (hc.altura) historiaTexto += `altura ${hc.altura} `;
+            if (hc.peso) historiaTexto += `peso ${hc.peso} `;
+            if (hc.temperatura) historiaTexto += `temperatura ${hc.temperatura} `;
+            if (hc.presion) historiaTexto += `presion ${hc.presion} `;
             
-            // Datos dinámicos
+            // Datos dinámicos (incluyendo los nuevos del Sprint 5)
             let dinamicos = hc.datos_dinamicos;
             if (typeof dinamicos === 'string') {
               try {
@@ -265,7 +269,15 @@ export class MisTurnosComponent implements OnInit {
             
             if (Array.isArray(dinamicos)) {
               dinamicos.forEach((d: any) => {
-                historiaTexto += `${d.clave} ${d.valor} `;
+                // Buscar por clave y valor
+                if (d.clave) historiaTexto += `${d.clave} `;
+                if (d.valor !== null && d.valor !== undefined) {
+                  // Convertir valores booleanos y numéricos a texto
+                  const valorTexto = typeof d.valor === 'boolean' 
+                    ? (d.valor ? 'si sí yes true' : 'no false') 
+                    : String(d.valor);
+                  historiaTexto += `${valorTexto} `;
+                }
               });
             }
           });

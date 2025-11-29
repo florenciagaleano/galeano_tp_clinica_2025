@@ -55,9 +55,14 @@
   <div class="informe-card">
     <div class="informe-header">
       <h2><i class="fas fa-stethoscope"></i> Turnos por Especialidad</h2>
-      <button class="btn-primary" (click)="descargarTurnosPorEspecialidadExcel()">
-        <i class="fas fa-file-excel"></i> Descargar Excel
-      </button>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-primary" (click)="descargarTurnosPorEspecialidadExcel()">
+          <i class="fas fa-file-excel"></i> Excel
+        </button>
+        <button class="btn-primary" (click)="descargarTurnosPorEspecialidadPDF()">
+          <i class="fas fa-file-pdf"></i> PDF
+        </button>
+      </div>
     </div>
     
     <!-- GRÁFICO CON CHART.JS -->
@@ -83,9 +88,29 @@
   <!-- 3. CANTIDAD DE TURNOS POR DÍA -->
   <div class="informe-card">
     <div class="informe-header">
-      <h2><i class="fas fa-calendar-alt"></i> Turnos por Día (Últimos 15 días)</h2>
-      <button class="btn-primary" (click)="descargarTurnosPorDiaExcel()">
-        <i class="fas fa-file-excel"></i> Descargar Excel
+      <h2><i class="fas fa-calendar-alt"></i> Turnos por Día</h2>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-primary" (click)="descargarTurnosPorDiaExcel()">
+          <i class="fas fa-file-excel"></i> Excel
+        </button>
+        <button class="btn-primary" (click)="descargarTurnosPorDiaPDF()">
+          <i class="fas fa-file-pdf"></i> PDF
+        </button>
+      </div>
+    </div>
+    
+    <!-- Filtros de fecha -->
+    <div class="filtros-fecha" style="margin-bottom: 15px;">
+      <div class="campo-fecha">
+        <label>Desde:</label>
+        <input type="date" [(ngModel)]="fechaInicioDia" (change)="cargarTurnosPorDia()">
+      </div>
+      <div class="campo-fecha">
+        <label>Hasta:</label>
+        <input type="date" [(ngModel)]="fechaFinDia" (change)="cargarTurnosPorDia()">
+      </div>
+      <button class="btn-secondary" (click)="fechaInicioDia=''; fechaFinDia=''; cargarTurnosPorDia()" *ngIf="fechaInicioDia || fechaFinDia">
+        <i class="fas fa-times"></i> Limpiar
       </button>
     </div>
     

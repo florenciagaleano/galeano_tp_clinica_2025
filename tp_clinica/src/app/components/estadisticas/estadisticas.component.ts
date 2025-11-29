@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
 import { Chart, BarElement, BarController, CategoryScale, LinearScale, Title, Tooltip, Legend, PieController, ArcElement, registerables } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
@@ -64,6 +65,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   
   // Turnos por día
   turnosPorDia: TurnoPorDia[] = [];
+  fechaInicioDia = '';
+  fechaFinDia = '';
   
   // Turnos por médico
   fechaInicio = '';
@@ -162,10 +165,18 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   async cargarTurnosPorDia() {
     try {
       this.loading = true;
-      const { data, error } = await this.supabaseService.supabase
+      
+      let query = this.supabaseService.supabase
         .from('turnos')
         .select('fecha')
         .order('fecha', { ascending: false });
+      
+      // Aplicar filtros de fecha si están definidos
+      if (this.fechaInicioDia && this.fechaFinDia) {
+        query = query.gte('fecha', this.fechaInicioDia).lte('fecha', this.fechaFinDia);
+      }
+      
+      const { data, error } = await query;
       
       if (error) throw error;
 
@@ -178,7 +189,12 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       this.turnosPorDia = Object.entries(agrupado).map(([fecha, cantidad]) => ({
         fecha,
         cantidad
-      })).sort((a, b) => b.fecha.localeCompare(a.fecha)).slice(0, 15); // Últimos 15 días
+      })).sort((a, b) => b.fecha.localeCompare(a.fecha));
+      
+      // Si no hay filtro de fecha, mostrar solo últimos 15 días
+      if (!this.fechaInicioDia && !this.fechaFinDia) {
+        this.turnosPorDia = this.turnosPorDia.slice(0, 15);
+      }
       
       // Generar gráfico después de cargar datos
       setTimeout(() => this.generarGraficoDias(), 100);
@@ -420,5 +436,100 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Turnos Finalizados');
     XLSX.writeFile(wb, `turnos_finalizados_${new Date().getTime()}.xlsx`);
+  }
+
+  // ========== DESCARGAS PDF CON GRÁFICOS ==========
+  descargarTurnosPorEspecialidadPDF() {
+    const doc = new jsPDF();
+    
+    // Título
+    doc.setFontSize(18);
+    doc.text('Turnos por Especialidad', 15, 20);
+    
+    // Fecha de emisión
+    doc.setFontSize(10);
+    const fechaEmision = new Date().toLocaleDateString('es-AR', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    doc.text(`Fecha de emisión: ${fechaEmision}`, 15, 28);
+    
+    // Capturar gráfico
+    const canvas = document.getElementById('chartEspecialidades') as HTMLCanvasElement;
+    if (canvas) {
+      const imgData = canvas.toDataURL('image/png');
+      doc.addImage(imgData, 'PNG', 15, 35, 180, 100);
+    }
+    
+    // Agregar tabla de datos
+    let yPos = canvas ? 145 : 35;
+    doc.setFontSize(12);
+    doc.text('Detalle:', 15, yPos);
+    
+    yPos += 7;
+    doc.setFontSize(10);
+    this.turnosPorEspecialidad.forEach(item => {
+      doc.text(`${item.especialidad}: ${item.cantidad} turnos`, 20, yPos);
+      yPos += 6;
+      if (yPos > 280) {
+        doc.addPage();
+        yPos = 20;
+      }
+    });
+    
+    doc.save(`turnos_especialidad_${new Date().getTime()}.pdf`);
+  }
+
+  descargarTurnosPorDiaPDF() {
+    const doc = new jsPDF();
+    
+    // Título
+    doc.setFontSize(18);
+    doc.text('Turnos por Día', 15, 20);
+    
+    // Fecha de emisión
+    doc.setFontSize(10);
+    const fechaEmision = new Date().toLocaleDateString('es-AR', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    doc.text(`Fecha de emisión: ${fechaEmision}`, 15, 28);
+    
+    // Rango de fechas si está filtrado
+    if (this.fechaInicioDia && this.fechaFinDia) {
+      doc.text(`Período: ${this.fechaInicioDia} a ${this.fechaFinDia}`, 15, 34);
+    }
+    
+    // Capturar gráfico
+    const canvas = document.getElementById('chartDias') as HTMLCanvasElement;
+    if (canvas) {
+      const imgData = canvas.toDataURL('image/png');
+      const yPosChart = this.fechaInicioDia && this.fechaFinDia ? 40 : 35;
+      doc.addImage(imgData, 'PNG', 15, yPosChart, 180, 120);
+    }
+    
+    // Agregar tabla de datos
+    let yPos = canvas ? 170 : 35;
+    if (this.fechaInicioDia && this.fechaFinDia) {
+      yPos += 5;
+    }
+    
+    doc.setFontSize(12);
+    doc.text('Detalle:', 15, yPos);
+    
+    yPos += 7;
+    doc.setFontSize(10);
+    this.turnosPorDia.forEach(item => {
+      doc.text(`${item.fecha}: ${item.cantidad} turnos`, 20, yPos);
+      yPos += 6;
+      if (yPos > 280) {
+        doc.addPage();
+        yPos = 20;
+      }
+    });
+    
+    doc.save(`turnos_dia_${new Date().getTime()}.pdf`);
   }
 }
