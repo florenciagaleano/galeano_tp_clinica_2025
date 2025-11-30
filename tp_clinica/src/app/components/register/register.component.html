@@ -193,12 +193,12 @@
         </div>
       </div>
 
-      <!-- Captcha para Pacientes -->
-      <app-captcha 
-        #captchaPaciente
-        [enabled]="true"
+      <!-- Captcha Propio para Pacientes -->
+      <div 
+        appCaptchaPropio
+        [captchaEnabled]="captchaHabilitado"
         (captchaValidated)="onCaptchaPacienteValidado($event)">
-      </app-captcha>
+      </div>
 
       <button 
         type="submit" 
@@ -370,12 +370,12 @@
         <small class="help-text">Formato: JPG, PNG. Máximo 5MB</small>
       </div>
 
-      <!-- Captcha para Especialistas -->
-      <app-captcha 
-        #captchaEspecialista
-        [enabled]="true"
+      <!-- Captcha Propio para Especialistas -->
+      <div 
+        appCaptchaPropio
+        [captchaEnabled]="captchaHabilitado"
         (captchaValidated)="onCaptchaEspecialistaValidado($event)">
-      </app-captcha>
+      </div>
 
       <button 
         type="submit" 

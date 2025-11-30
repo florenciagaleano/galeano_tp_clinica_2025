@@ -20,7 +20,7 @@ export class CaptchaComponent implements OnInit, OnDestroy {
   @Input() enabled: boolean = true;
   @Output() captchaValidated = new EventEmitter<boolean>();
 
-  // Site Key de Google reCAPTCHA v2
+  // lo dejo x las dudas
   siteKey: string = '6LdKKg0sAAAAAMfPxiYcpwfjVSYDqeePiqCYgNBS';
   
   captchaToken: string | null = null;

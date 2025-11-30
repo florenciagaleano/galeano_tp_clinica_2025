@@ -51,6 +51,7 @@ export class UsuariosComponent implements OnInit {
   mensaje = '';
   mensajeTipo: 'success' | 'error' = 'success';
   captchaValido = false;
+  captchaHabilitado = true;
 
   // Formularios
   formularioFiltro!: FormGroup;
@@ -85,6 +86,12 @@ export class UsuariosComponent implements OnInit {
   }
 
   async ngOnInit() {
+    // Cargar estado del captcha desde localStorage
+    const captchaEstado = localStorage.getItem('captcha_habilitado');
+    if (captchaEstado !== null) {
+      this.captchaHabilitado = captchaEstado === 'true';
+    }
+    
     this.inicializarFormularios();
     await this.cargarDatos();
   }
@@ -454,6 +461,15 @@ export class UsuariosComponent implements OnInit {
     } finally {
       this.loading = false;
     }
+  }
+
+  toggleCaptcha() {
+    this.captchaHabilitado = !this.captchaHabilitado;
+    localStorage.setItem('captcha_habilitado', this.captchaHabilitado.toString());
+    this.mostrarMensaje(
+      `Captcha ${this.captchaHabilitado ? 'habilitado' : 'deshabilitado'} para todos los formularios de registro`,
+      'success'
+    );
   }
 
   async verHistoriaClinica(usuario: any) {

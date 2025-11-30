@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase.service';
 import { CaptchaComponent } from '../captcha/captcha.component';
+import { CaptchaPropioDirective } from '../../directives/captcha-propio.directive';
 import { 
   RegistroPacienteForm, 
   RegistroEspecialistaForm, 
@@ -15,7 +16,7 @@ import { AnimacionEntradaDirective } from '../../directives/animacion-entrada.di
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, ReactiveFormsModule, CaptchaComponent, FormatoDniDirective, AnimacionEntradaDirective],
+  imports: [CommonModule, ReactiveFormsModule, CaptchaComponent, CaptchaPropioDirective, FormatoDniDirective, AnimacionEntradaDirective],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
@@ -36,6 +37,7 @@ export class RegisterComponent implements OnInit {
   mensajeTipo: 'success' | 'error' = 'success';
   captchaPacienteValido = false;
   captchaEspecialistaValido = false;
+  captchaHabilitado = true;
 
   // Variables para nueva especialidad
   agregandoEspecialidad = false;
@@ -54,6 +56,12 @@ export class RegisterComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    // Cargar estado del captcha desde localStorage
+    const captchaEstado = localStorage.getItem('captcha_habilitado');
+    if (captchaEstado !== null) {
+      this.captchaHabilitado = captchaEstado === 'true';
+    }
+    
     this.inicializarFormularios();
     await this.cargarEspecialidades();
   }
