@@ -10,7 +10,6 @@
       </h2>
       <div style="width: 100px;"></div>
     </div>
-    <p>Pacientes que has atendido al menos una vez</p>
   </div>
 
   <div class="loading" *ngIf="cargando">
@@ -23,8 +22,16 @@
         <img [src]="paciente.imagen_perfil_1 || 'assets/default-avatar.png'" [alt]="paciente.nombre">
         <div>
           <h3>{{ paciente.nombre }} {{ paciente.apellido }}</h3>
-          <p>DNI: {{ paciente.dni }}</p>
-          <p>Obra Social: {{ paciente.obra_social }}</p>
+          <p><strong>DNI:</strong> {{ paciente.dni }}</p>
+          <p><strong>Obra Social:</strong> {{ paciente.obra_social }}</p>
+          
+          <div class="ultimos-turnos" *ngIf="paciente.ultimos_turnos && paciente.ultimos_turnos.length > 0">
+            <h4><i class="fas fa-clock"></i> Últimos turnos:</h4>
+            <div class="turno-item" *ngFor="let turno of paciente.ultimos_turnos">
+              <span class="turno-fecha">{{ turno.fecha }}</span>
+              <span class="turno-hora">{{ turno.hora }}</span>
+            </div>
+          </div>
         </div>
       </div>
       <button class="btn-ver" (click)="verHistoriaClinica(paciente)">

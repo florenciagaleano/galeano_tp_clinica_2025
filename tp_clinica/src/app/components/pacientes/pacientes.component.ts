@@ -50,20 +50,39 @@ export class PacientesComponent implements OnInit {
         .from('turnos')
         .select(`
           paciente_id,
+          fecha,
+          hora,
+          estado,
           paciente:paciente_id(*)
         `)
         .eq('especialista_id', especialista.id)
-        .eq('estado', 'realizado');
+        .eq('estado', 'realizado')
+        .order('fecha', { ascending: false })
+        .order('hora', { ascending: false });
 
-      // Obtener pacientes únicos
-      const pacientesUnicos = new Map();
+      // Agrupar turnos por paciente y obtener últimos 3
+      const pacientesMap = new Map();
       turnos?.forEach((t: any) => {
-        if (t.paciente && !pacientesUnicos.has(t.paciente_id)) {
-          pacientesUnicos.set(t.paciente_id, t.paciente);
+        if (t.paciente) {
+          if (!pacientesMap.has(t.paciente_id)) {
+            pacientesMap.set(t.paciente_id, {
+              ...t.paciente,
+              ultimos_turnos: []
+            });
+          }
+          
+          const pacienteData = pacientesMap.get(t.paciente_id);
+          if (pacienteData.ultimos_turnos.length < 3) {
+            pacienteData.ultimos_turnos.push({
+              fecha: t.fecha,
+              hora: t.hora,
+              estado: t.estado
+            });
+          }
         }
       });
 
-      this.pacientes = Array.from(pacientesUnicos.values());
+      this.pacientes = Array.from(pacientesMap.values());
     } catch (error) {
       console.error('Error cargando pacientes:', error);
     } finally {

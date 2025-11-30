@@ -14,6 +14,7 @@ import {
   RegistroAdministradorForm,
   Especialidad
 } from '../../models/interfaces';
+import * as XLSX from 'xlsx';
 
 interface UsuarioCompleto {
   id: string;
@@ -458,6 +459,56 @@ export class UsuariosComponent implements OnInit {
     } catch (error) {
       console.error('Error exportando Excel:', error);
       this.mostrarMensaje('Error al exportar Excel', 'error');
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  // Descargar Excel general de usuarios
+  descargarExcelUsuarios() {
+    const datos = this.usuariosFiltrados.length > 0 ? this.usuariosFiltrados.map(u => ({
+      Nombre: u.nombre,
+      Apellido: u.apellido,
+      DNI: u.dni,
+      Edad: u.edad,
+      Perfil: u.tipo,
+      Especialidad: u.especialidades ? u.especialidades.map(e => e.nombre).join(', ') : '',
+      Email: u.email
+    })) : this.usuarios.map(u => ({
+      Nombre: u.nombre,
+      Apellido: u.apellido,
+      DNI: u.dni,
+      Edad: u.edad,
+      Perfil: u.tipo,
+      Especialidad: u.especialidades ? u.especialidades.map(e => e.nombre).join(', ') : '',
+      Email: u.email
+    }));
+    const ws = XLSX.utils.json_to_sheet(datos);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Usuarios');
+    XLSX.writeFile(wb, 'usuarios_clinica.xlsx');
+  }
+
+  // Descargar Excel de turnos de un paciente
+  async descargarExcelTurnosPaciente(usuario: any) {
+    this.loading = true;
+    try {
+      // Usar el método obtenerTurnosPaciente para obtener todos los datos relevantes
+      const turnos = await this.supabaseService.obtenerTurnosPaciente(usuario.id);
+      const datos = (turnos || []).map(t => ({
+        Fecha: t.fecha,
+        Hora: t.hora,
+        Especialidad: t.especialidad?.nombre || t.especialidad || '',
+        Especialista: t.especialista ? `${t.especialista.nombre} ${t.especialista.apellido}` : '',
+        Estado: t.estado || '',
+        Comentario: t.comentario_paciente || t.resena || '',
+      }));
+      const ws = XLSX.utils.json_to_sheet(datos);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Turnos');
+      XLSX.writeFile(wb, `turnos_${usuario.nombre}_${usuario.apellido}.xlsx`);
+    } catch (error) {
+      this.mostrarMensaje('Error al descargar turnos', 'error');
     } finally {
       this.loading = false;
     }

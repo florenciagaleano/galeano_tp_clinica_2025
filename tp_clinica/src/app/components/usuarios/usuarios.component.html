@@ -199,6 +199,14 @@
                   title="Ver historia clínica">
                   <i class="fas fa-file-medical"></i>
                 </button>
+                <button 
+                  *ngIf="usuario.tipo === TipoUsuario.PACIENTE"
+                  type="button" 
+                  class="btn btn-sm btn-success"
+                  (click)="descargarExcelTurnosPaciente(usuario)"
+                  title="Descargar turnos en Excel">
+                  <i class="fas fa-file-excel"></i>
+                </button>
 
                 <!-- Activar/Desactivar -->
                 <button 
