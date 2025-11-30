@@ -11,14 +11,6 @@
         <i class="fas fa-plus"></i>
         Nuevo Turno
       </button>
-      <button class="btn-exportar" (click)="exportarExcel()">
-        <i class="fas fa-file-excel"></i>
-        Exportar
-      </button>
-      <button class="btn-reporte" (click)="generarReporte()">
-        <i class="fas fa-file-pdf"></i>
-        Reporte
-      </button>
     </div>
   </div>
 
@@ -92,10 +84,6 @@
             <strong>{{ turno.paciente?.nombre }} {{ turno.paciente?.apellido }}</strong>
             <p>DNI: {{ turno.paciente?.dni }}</p>
             <p>Obra Social: {{ turno.paciente?.obra_social }}</p>
-            <button class="btn-link" (click)="verHistoriaClinica(turno.paciente_id)">
-              <i class="fas fa-file-medical"></i>
-              Ver Historia Clínica
-            </button>
           </div>
         </div>
 
